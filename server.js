@@ -222,4 +222,6 @@ io.on('connection', socket => {
   });
 });
 
-server.listen(PORT, () => console.log(`Spyfall Deluxe running on http://localhost:${PORT}`));
+server.listen(PORT, () => {
+  console.log(`Spyfall Deluxe running on port ${PORT}`);
+});
