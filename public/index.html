@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Spyfall Thai Web Game</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="app">
+    <section class="hero" id="joinScreen">
+      <div class="logo">🕵️</div>
+      <h1>Spyfall</h1>
+      <p>เกมจับสายลับ เล่นง่าย 2–15 คน คนหนึ่งเป็น Spy ส่วนคนอื่นรู้สถานที่เดียวกัน</p>
+      <input id="name" maxlength="18" placeholder="ชื่อผู้เล่น" />
+      <div class="row"><button id="createBtn">สร้างห้อง</button><input id="roomCode" maxlength="5" placeholder="รหัสห้อง" /><button id="joinBtn">เข้าห้อง</button></div>
+      <p class="small">แนะนำ: เปิดใน Wi‑Fi เดียวกัน หรือ deploy ขึ้นเซิร์ฟเวอร์เพื่อเล่นออนไลน์</p>
+    </section>
+
+    <section class="game hidden" id="gameScreen">
+      <header>
+        <div><b>Room</b><span id="codeLabel">-----</span></div>
+        <div><b>Time</b><span id="timer">--:--</span></div>
+        <div><b>Status</b><span id="status">Lobby</span></div>
+      </header>
+      <section class="secretCard" id="secretCard">
+        <div class="badge">บทบาทของคุณ</div>
+        <h2 id="roleText">รอเริ่มเกม</h2>
+        <p id="secretText">เจ้าของห้องกดเริ่มเมื่อพร้อม</p>
+      </section>
+      <section class="controls">
+        <label>เวลารอบ <select id="seconds"><option value="300">5 นาที</option><option value="480" selected>8 นาที</option><option value="600">10 นาที</option><option value="900">15 นาที</option></select></label>
+        <button id="startBtn">เริ่มรอบ</button>
+        <button id="endBtn" class="danger">เฉลย / จบรอบ</button>
+      </section>
+      <section class="panel">
+        <h3>ผู้เล่น</h3>
+        <div id="players" class="players"></div>
+      </section>
+      <section class="rules">
+        <h3>วิธีเล่นสั้น ๆ</h3>
+        <ol>
+          <li>ทุกคนผลัดกันถามคำถามเกี่ยวกับสถานที่ เช่น “ที่นี่เสียงดังไหม?”</li>
+          <li>คนที่ไม่ใช่ Spy ต้องตอบให้รู้กันเอง แต่ไม่บอกชัดเกินไป</li>
+          <li>Spy พยายามเนียนและเดาว่าสถานที่คืออะไร</li>
+          <li>กดโหวตคนที่สงสัย แล้วเจ้าของห้องกดเฉลยเมื่อจบรอบ</li>
+        </ol>
+      </section>
+    </section>
+  </main>
+  <div id="toast"></div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
