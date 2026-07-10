@@ -1,136 +1,225 @@
 const express = require('express');
 const http = require('http');
+const fs = require('fs');
+const path = require('path');
 const { Server } = require('socket.io');
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
+const io = new Server(server, { cors: { origin: '*' } });
 const PORT = process.env.PORT || 3000;
+const MAX_PLAYERS = 15;
+const MIN_PLAYERS = 2;
+const DEFAULT_SECONDS = 480;
 
 app.use(express.static('public'));
+app.get('/health', (_, res) => res.json({ ok: true }));
 
+const locationsPath = path.join(__dirname, 'public', 'data', 'locations.json');
+const locations = JSON.parse(fs.readFileSync(locationsPath, 'utf8'));
 const rooms = new Map();
-const locations = [
-  'สนามบิน', 'โรงพยาบาล', 'โรงเรียน', 'ธนาคาร', 'สถานีตำรวจ', 'ร้านอาหาร', 'โรงแรม',
-  'ห้างสรรพสินค้า', 'สวนสนุก', 'ชายหาด', 'เรือสำราญ', 'สถานีอวกาศ', 'ฟาร์ม', 'พิพิธภัณฑ์',
-  'โรงภาพยนตร์', 'มหาวิทยาลัย', 'วัด', 'ค่ายทหาร', 'สถานีรถไฟ', 'สำนักงานบริษัท',
-  'ตลาดนัด', 'ฟิตเนส', 'ร้านกาแฟ', 'สนามฟุตบอล', 'เรือนจำ'
-];
 
 function code() {
-  const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   let out = '';
-  for (let i = 0; i < 5; i++) out += alphabet[Math.floor(Math.random() * alphabet.length)];
+  do {
+    out = Array.from({ length: 5 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+  } while (rooms.has(out));
   return out;
+}
+function cleanName(name) {
+  return String(name || 'Player').trim().slice(0, 18) || 'Player';
 }
 function publicRoom(room) {
   return {
     code: room.code,
-    hostId: room.hostId,
     status: room.status,
+    hostId: room.hostId,
+    createdAt: room.createdAt,
     roundSeconds: room.roundSeconds,
     startedAt: room.startedAt,
-    players: room.players.map(p => ({ id: p.id, name: p.name, isHost: p.id === room.hostId, connected: p.connected, votes: room.votes[p.id] || 0 }))
+    locationCount: locations.length,
+    roleCount: locations.reduce((n, x) => n + x.roles.length, 0),
+    spyCount: room.spyCount,
+    currentLocationName: room.status === 'revealed' && room.current ? room.current.location.name : null,
+    players: Array.from(room.players.values()).map(p => ({
+      id: p.id,
+      name: p.name,
+      connected: p.connected,
+      isHost: p.id === room.hostId,
+      votes: Array.from(room.votes.values()).filter(v => v === p.id).length,
+      score: p.score || 0
+    }))
   };
 }
-function emitRoom(room) { io.to(room.code).emit('room:update', publicRoom(room)); }
-function getRoomOrLeave(socket, roomCode) {
-  const room = rooms.get(roomCode);
-  if (!room) socket.emit('error:message', 'ไม่พบห้องนี้');
-  return room;
+function emitRoom(room) {
+  io.to(room.code).emit('room:update', publicRoom(room));
 }
-function cleanupRoom(room) {
-  const connected = room.players.some(p => p.connected);
-  if (!connected) rooms.delete(room.code);
-}
-function resetRound(room) {
-  room.status = 'lobby';
-  room.spyId = null;
-  room.location = null;
-  room.startedAt = null;
-  room.votes = {};
-  room.players.forEach(p => p.role = null);
-}
-function startRound(room, seconds = 480) {
-  if (room.players.filter(p => p.connected).length < 2) return 'ต้องมีผู้เล่นอย่างน้อย 2 คน';
-  if (room.players.filter(p => p.connected).length > 15) return 'ผู้เล่นต้องไม่เกิน 15 คน';
-  room.roundSeconds = Math.max(60, Math.min(Number(seconds) || 480, 1800));
-  room.status = 'playing';
-  room.location = locations[Math.floor(Math.random() * locations.length)];
-  room.startedAt = Date.now();
-  room.votes = {};
-  const active = room.players.filter(p => p.connected);
-  const spy = active[Math.floor(Math.random() * active.length)];
-  room.spyId = spy.id;
-  room.players.forEach(p => p.role = p.id === spy.id ? 'spy' : 'civilian');
-  for (const p of room.players) {
-    const payload = p.id === room.spyId
-      ? { role: 'spy', location: null, hint: 'คุณคือ SPY! พยายามเดาสถานที่จากคำถามของคนอื่น' }
-      : { role: 'civilian', location: room.location, hint: 'ถาม-ตอบโดยอย่าเปิดเผยสถานที่ชัดเกินไป' };
-    io.to(p.id).emit('round:secret', payload);
-  }
-  emitRoom(room);
+function findRoomBySocket(socketId) {
+  for (const room of rooms.values()) if (room.players.has(socketId)) return room;
   return null;
 }
+function choose(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+function shuffle(arr) { return [...arr].sort(() => Math.random() - 0.5); }
+function endRound(room, reason = 'manual') {
+  if (!room || room.status !== 'playing' || !room.current) return;
+  room.status = 'revealed';
+  const spyNames = room.current.spies.map(id => room.players.get(id)?.name || 'Unknown');
+  io.to(room.code).emit('round:reveal', {
+    reason,
+    spyNames,
+    spyIds: room.current.spies,
+    location: room.current.location.name,
+    assignedRoles: room.current.roles,
+    votes: Object.fromEntries(room.votes),
+    locationCount: locations.length,
+    roleCount: locations.reduce((n, x) => n + x.roles.length, 0)
+  });
+  emitRoom(room);
+}
+setInterval(() => {
+  const now = Date.now();
+  for (const room of rooms.values()) {
+    if (room.status === 'playing' && room.startedAt + room.roundSeconds * 1000 <= now) endRound(room, 'timeup');
+  }
+}, 1000);
 
 io.on('connection', socket => {
   socket.on('room:create', ({ name }) => {
     const roomCode = code();
-    const player = { id: socket.id, name: String(name || 'Player').trim().slice(0, 18), connected: true, role: null };
-    const room = { code: roomCode, hostId: socket.id, players: [player], status: 'lobby', roundSeconds: 480, startedAt: null, spyId: null, location: null, votes: {} };
+    const room = {
+      code: roomCode,
+      createdAt: Date.now(),
+      hostId: socket.id,
+      status: 'lobby',
+      players: new Map(),
+      votes: new Map(),
+      current: null,
+      roundSeconds: DEFAULT_SECONDS,
+      startedAt: null,
+      spyCount: 1
+    };
+    room.players.set(socket.id, { id: socket.id, name: cleanName(name), connected: true, score: 0 });
     rooms.set(roomCode, room);
     socket.join(roomCode);
     socket.data.roomCode = roomCode;
-    socket.emit('room:joined', { code: roomCode, playerId: socket.id });
+    socket.emit('room:joined', { code: roomCode, you: socket.id });
     emitRoom(room);
   });
 
-  socket.on('room:join', ({ code: roomCode, name }) => {
-    roomCode = String(roomCode || '').trim().toUpperCase();
-    const room = getRoomOrLeave(socket, roomCode); if (!room) return;
-    if (room.players.filter(p => p.connected).length >= 15) return socket.emit('error:message', 'ห้องเต็มแล้ว สูงสุด 15 คน');
-    if (room.status !== 'lobby') return socket.emit('error:message', 'รอบกำลังเล่นอยู่ รอรอบถัดไป');
-    const player = { id: socket.id, name: String(name || 'Player').trim().slice(0, 18), connected: true, role: null };
-    room.players.push(player);
-    socket.join(roomCode);
-    socket.data.roomCode = roomCode;
-    socket.emit('room:joined', { code: roomCode, playerId: socket.id });
+  socket.on('room:join', ({ name, code: roomCode }) => {
+    const room = rooms.get(String(roomCode || '').trim().toUpperCase());
+    if (!room) return socket.emit('error:message', 'ไม่พบห้องนี้');
+    if (room.players.size >= MAX_PLAYERS && !room.players.has(socket.id)) return socket.emit('error:message', 'ห้องเต็มแล้ว สูงสุด 15 คน');
+    room.players.set(socket.id, { id: socket.id, name: cleanName(name), connected: true, score: 0 });
+    socket.join(room.code);
+    socket.data.roomCode = room.code;
+    socket.emit('room:joined', { code: room.code, you: socket.id });
     emitRoom(room);
   });
 
-  socket.on('round:start', ({ seconds }) => {
-    const room = getRoomOrLeave(socket, socket.data.roomCode); if (!room) return;
-    if (room.hostId !== socket.id) return socket.emit('error:message', 'เฉพาะเจ้าของห้องเท่านั้นที่เริ่มเกมได้');
-    const err = startRound(room, seconds);
-    if (err) socket.emit('error:message', err);
-  });
+  socket.on('round:start', ({ seconds, spyCount }) => {
+    const room = findRoomBySocket(socket.id);
+    if (!room) return;
+    if (room.hostId !== socket.id) return socket.emit('error:message', 'เฉพาะ Host เท่านั้นที่เริ่มเกมได้');
+    const activePlayers = Array.from(room.players.values()).filter(p => p.connected);
+    if (activePlayers.length < MIN_PLAYERS) return socket.emit('error:message', 'ต้องมีผู้เล่นอย่างน้อย 2 คน');
+    if (activePlayers.length > MAX_PLAYERS) return socket.emit('error:message', 'รองรับสูงสุด 15 คน');
 
-  socket.on('round:end', () => {
-    const room = getRoomOrLeave(socket, socket.data.roomCode); if (!room) return;
-    if (room.hostId !== socket.id) return socket.emit('error:message', 'เฉพาะเจ้าของห้องเท่านั้นที่จบรอบได้');
-    io.to(room.code).emit('round:reveal', { location: room.location, spyName: room.players.find(p => p.id === room.spyId)?.name || 'Unknown' });
-    resetRound(room);
+    const sec = Math.max(120, Math.min(1800, Number(seconds) || DEFAULT_SECONDS));
+    const safeSpyCount = Math.max(1, Math.min(Number(spyCount) || 1, Math.max(1, Math.floor(activePlayers.length / 4))));
+    const selectedLocation = choose(locations);
+    const shuffledPlayers = shuffle(activePlayers);
+    const spyIds = shuffledPlayers.slice(0, safeSpyCount).map(p => p.id);
+    const roleBag = shuffle(selectedLocation.roles);
+    const assigned = {};
+    activePlayers.forEach((p, index) => {
+      if (!spyIds.includes(p.id)) assigned[p.id] = roleBag[index % roleBag.length];
+    });
+
+    room.status = 'playing';
+    room.startedAt = Date.now();
+    room.roundSeconds = sec;
+    room.spyCount = safeSpyCount;
+    room.votes.clear();
+    room.current = { location: selectedLocation, spies: spyIds, roles: assigned };
+
+    activePlayers.forEach(p => {
+      if (spyIds.includes(p.id)) {
+        io.to(p.id).emit('round:secret', {
+          type: 'spy',
+          title: 'คุณคือ SPY 🕵️',
+          hint: 'พยายามเดาว่าสถานที่คืออะไร โดยอย่าให้คนอื่นรู้ว่าคุณเป็น Spy',
+          locationCount: locations.length,
+          roleCount: locations.reduce((n, x) => n + x.roles.length, 0)
+        });
+      } else {
+        io.to(p.id).emit('round:secret', {
+          type: 'civilian',
+          title: 'คุณไม่ใช่ Spy ✅',
+          location: selectedLocation.name,
+          character: assigned[p.id],
+          locationCount: locations.length,
+          roleCount: locations.reduce((n, x) => n + x.roles.length, 0)
+        });
+      }
+    });
     emitRoom(room);
   });
 
   socket.on('vote', ({ targetId }) => {
-    const room = getRoomOrLeave(socket, socket.data.roomCode); if (!room || room.status !== 'playing') return;
-    if (!room.players.some(p => p.id === targetId)) return;
-    room.votes[targetId] = (room.votes[targetId] || 0) + 1;
+    const room = findRoomBySocket(socket.id);
+    if (!room || room.status !== 'playing') return;
+    if (!room.players.has(targetId) || targetId === socket.id) return;
+    room.votes.set(socket.id, targetId);
+    emitRoom(room);
+  });
+
+  socket.on('round:end', () => {
+    const room = findRoomBySocket(socket.id);
+    if (!room) return;
+    if (room.hostId !== socket.id) return socket.emit('error:message', 'เฉพาะ Host เท่านั้นที่เฉลยได้');
+    endRound(room, 'host');
+  });
+
+  socket.on('round:reset', () => {
+    const room = findRoomBySocket(socket.id);
+    if (!room) return;
+    if (room.hostId !== socket.id) return socket.emit('error:message', 'เฉพาะ Host เท่านั้นที่รีเซ็ตรอบได้');
+    room.status = 'lobby';
+    room.startedAt = null;
+    room.current = null;
+    room.votes.clear();
+    io.to(room.code).emit('round:cleared');
+    emitRoom(room);
+  });
+
+  socket.on('room:kick', ({ playerId }) => {
+    const room = findRoomBySocket(socket.id);
+    if (!room || room.hostId !== socket.id || playerId === room.hostId) return;
+    const s = io.sockets.sockets.get(playerId);
+    if (s) {
+      s.emit('error:message', 'คุณถูกนำออกจากห้อง');
+      s.leave(room.code);
+      s.data.roomCode = null;
+    }
+    room.players.delete(playerId);
     emitRoom(room);
   });
 
   socket.on('disconnect', () => {
-    const room = rooms.get(socket.data.roomCode); if (!room) return;
-    const player = room.players.find(p => p.id === socket.id);
-    if (player) player.connected = false;
-    if (room.hostId === socket.id) {
-      const next = room.players.find(p => p.connected);
-      if (next) room.hostId = next.id;
+    const room = findRoomBySocket(socket.id);
+    if (!room) return;
+    const p = room.players.get(socket.id);
+    if (p) p.connected = false;
+    const connected = Array.from(room.players.values()).filter(x => x.connected);
+    if (connected.length === 0) {
+      rooms.delete(room.code);
+      return;
     }
+    if (room.hostId === socket.id) room.hostId = connected[0].id;
     emitRoom(room);
-    setTimeout(() => cleanupRoom(room), 15000);
   });
 });
 
-server.listen(PORT, () => console.log(`Spyfall web game running at http://localhost:${PORT}`));
+server.listen(PORT, () => console.log(`Spyfall Deluxe running on http://localhost:${PORT}`));

@@ -1,8 +1,17 @@
 {
-  "name": "spyfall-web-game",
-  "version": "1.0.0",
-  "description": "Simple Thai Spyfall multiplayer web game for 2-15 players",
+  "name": "spyfall-deluxe-th",
+  "version": "2.0.0",
+  "description": "Spyfall Deluxe Thai multiplayer web game with rooms, roles, locations, timer, voting and reveal.",
   "main": "server.js",
-  "scripts": {"start":"node server.js","dev":"node server.js"},
-  "dependencies": {"express":"^4.19.2","socket.io":"^4.7.5"}
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "socket.io": "^4.7.5"
+  },
+  "engines": {
+    "node": ">=18"
+  }
 }

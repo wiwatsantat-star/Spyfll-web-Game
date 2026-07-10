@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: spyfall-deluxe-th
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
