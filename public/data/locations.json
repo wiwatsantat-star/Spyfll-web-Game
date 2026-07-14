@@ -1,898 +1,1502 @@
 [
   {
-    "id": "loc-001",
-    "name": "สนามบิน",
+    "name": "Airport",
     "roles": [
-      "นักบิน",
-      "ผู้ช่วยนักบิน",
-      "แอร์โฮสเตส",
-      "ผู้โดยสาร",
-      "เจ้าหน้าที่ตรวจคนเข้าเมือง",
-      "รปภ.",
-      "ช่างเครื่องบิน",
-      "พนักงานโหลดกระเป๋า",
-      "พนักงานร้านปลอดภาษี",
-      "เจ้าหน้าที่ภาคพื้น"
-    ]
-  },
-  {
-    "id": "loc-002",
-    "name": "โรงพยาบาล",
-    "roles": [
-      "หมอ",
-      "พยาบาล",
-      "ศัลยแพทย์",
-      "คนไข้",
-      "เภสัชกร",
-      "เจ้าหน้าที่เวชระเบียน",
-      "พนักงานเปล",
-      "นักรังสีเทคนิค",
-      "ญาติคนไข้",
-      "ผู้อำนวยการโรงพยาบาล"
-    ]
-  },
-  {
-    "id": "loc-003",
-    "name": "โรงเรียน",
-    "roles": [
-      "ผู้อำนวยการ",
-      "ครู",
-      "นักเรียน",
-      "ครูพละ",
-      "บรรณารักษ์",
-      "ภารโรง",
-      "แม่ครัว",
-      "รปภ.",
-      "ผู้ปกครอง",
-      "ครูแนะแนว"
-    ]
-  },
-  {
-    "id": "loc-004",
-    "name": "ธนาคาร",
-    "roles": [
-      "ผู้จัดการธนาคาร",
-      "พนักงานเคาน์เตอร์",
-      "ลูกค้า",
-      "เจ้าหน้าที่สินเชื่อ",
-      "รปภ.",
-      "พนักงานแลกเงิน",
-      "พนักงานบัญชี",
-      "คนกดบัตรคิว",
-      "ผู้ตรวจสอบบัญชี",
-      "แม่บ้าน"
-    ]
-  },
-  {
-    "id": "loc-005",
-    "name": "สถานีตำรวจ",
-    "roles": [
-      "ตำรวจสายตรวจ",
-      "นักสืบ",
-      "ผู้ต้องสงสัย",
-      "พนักงานสอบสวน",
-      "ทนาย",
-      "ผู้เสียหาย",
-      "รปภ.",
-      "เจ้าหน้าที่ธุรการ",
-      "นักข่าว",
-      "ผู้กำกับ"
-    ]
-  },
-  {
-    "id": "loc-006",
-    "name": "ร้านอาหาร",
-    "roles": [
-      "เชฟ",
-      "ผู้ช่วยเชฟ",
-      "เด็กเสิร์ฟ",
-      "ลูกค้า",
-      "แคชเชียร์",
-      "ผู้จัดการร้าน",
-      "พนักงานล้างจาน",
-      "บาร์เทนเดอร์",
-      "ไรเดอร์รับอาหาร",
-      "นักรีวิวอาหาร"
-    ]
-  },
-  {
-    "id": "loc-007",
-    "name": "โรงแรม",
-    "roles": [
-      "พนักงานต้อนรับ",
-      "แขกเข้าพัก",
-      "แม่บ้าน",
-      "ผู้จัดการโรงแรม",
-      "พนักงานยกกระเป๋า",
-      "เชฟโรงแรม",
-      "เจ้าหน้าที่สปา",
-      "รปภ.",
-      "พนักงานรูมเซอร์วิส",
-      "นักท่องเที่ยว"
-    ]
-  },
-  {
-    "id": "loc-008",
-    "name": "ห้างสรรพสินค้า",
-    "roles": [
-      "ลูกค้า",
-      "พนักงานขาย",
-      "รปภ.",
-      "พนักงานทำความสะอาด",
-      "ประชาสัมพันธ์",
-      "ผู้จัดการร้าน",
-      "พนักงานจอดรถ",
-      "แคชเชียร์",
-      "เด็กหลงทาง",
-      "ช่างซ่อมบำรุง"
-    ]
-  },
-  {
-    "id": "loc-009",
-    "name": "สวนสนุก",
-    "roles": [
-      "คนคุมเครื่องเล่น",
-      "นักท่องเที่ยว",
-      "มาสคอต",
-      "พนักงานขายตั๋ว",
-      "ช่างซ่อมเครื่องเล่น",
-      "พนักงานขายของกิน",
-      "เจ้าหน้าที่ปฐมพยาบาล",
-      "ช่างภาพ",
-      "เด็กนักเรียน",
-      "ผู้จัดการสวนสนุก"
-    ]
-  },
-  {
-    "id": "loc-010",
-    "name": "ชายหาด",
-    "roles": [
-      "ไลฟ์การ์ด",
-      "นักท่องเที่ยว",
-      "คนขายไอศกรีม",
-      "นักโต้คลื่น",
-      "ช่างภาพ",
-      "คนเช่าเตียงผ้าใบ",
-      "คนขับเจ็ตสกี",
-      "แม่ค้าส้มตำ",
-      "เด็กเล่นทราย",
-      "ตำรวจท่องเที่ยว"
-    ]
-  },
-  {
-    "id": "loc-011",
-    "name": "เรือสำราญ",
-    "roles": [
-      "กัปตันเรือ",
-      "ลูกเรือ",
-      "นักท่องเที่ยว",
-      "เชฟ",
-      "นักดนตรี",
-      "พนักงานคาสิโน",
-      "เจ้าหน้าที่สระว่ายน้ำ",
-      "บาร์เทนเดอร์",
-      "ช่างเครื่องเรือ",
-      "พนักงานทำความสะอาด"
-    ]
-  },
-  {
-    "id": "loc-012",
-    "name": "สถานีอวกาศ",
-    "roles": [
-      "นักบินอวกาศ",
-      "วิศวกรระบบ",
-      "นักวิทยาศาสตร์",
-      "หมอประจำยาน",
-      "ผู้ควบคุมภารกิจ",
-      "ช่างซ่อม",
-      "ผู้บัญชาการ",
-      "นักชีววิทยา",
-      "หุ่นยนต์ช่วยงาน",
-      "นักสื่อสาร"
-    ]
-  },
-  {
-    "id": "loc-013",
-    "name": "ฟาร์ม",
-    "roles": [
-      "ชาวนา",
-      "คนเลี้ยงสัตว์",
-      "สัตวแพทย์",
-      "คนขับรถแทรกเตอร์",
-      "คนเก็บผัก",
-      "เจ้าของฟาร์ม",
-      "คนขายอาหารสัตว์",
-      "คนรีดนม",
-      "เด็กฝึกงาน",
-      "คนส่งของ"
-    ]
-  },
-  {
-    "id": "loc-014",
-    "name": "พิพิธภัณฑ์",
-    "roles": [
-      "ไกด์",
-      "นักท่องเที่ยว",
-      "ภัณฑารักษ์",
-      "รปภ.",
-      "นักเรียนทัศนศึกษา",
-      "พนักงานขายตั๋ว",
-      "นักบูรณะ",
-      "ช่างภาพ",
-      "นักประวัติศาสตร์",
-      "ผู้จัดนิทรรศการ"
-    ]
-  },
-  {
-    "id": "loc-015",
-    "name": "โรงภาพยนตร์",
-    "roles": [
-      "คนขายตั๋ว",
-      "คนฉายหนัง",
-      "ผู้ชม",
-      "พนักงานขายป๊อปคอร์น",
-      "ผู้จัดการโรงหนัง",
-      "พนักงานทำความสะอาด",
-      "นักวิจารณ์หนัง",
-      "เด็กตรวจตั๋ว",
-      "รปภ.",
-      "คู่เดต"
-    ]
-  },
-  {
-    "id": "loc-016",
-    "name": "มหาวิทยาลัย",
-    "roles": [
-      "อาจารย์",
-      "นักศึกษา",
-      "เจ้าหน้าที่ทะเบียน",
-      "บรรณารักษ์",
-      "รปภ.",
-      "นักวิจัย",
-      "แม่ค้าหน้า ม.",
-      "คณบดี",
-      "นักศึกษาฝึกงาน",
-      "ช่างไอที"
-    ]
-  },
-  {
-    "id": "loc-017",
-    "name": "วัด",
-    "roles": [
-      "พระ",
-      "เณร",
-      "ญาติโยม",
-      "มัคนายก",
-      "คนขายดอกไม้",
-      "นักท่องเที่ยว",
-      "เด็กวัด",
-      "คนตีระฆัง",
-      "ไกด์ท้องถิ่น",
-      "แม่ชี"
-    ]
-  },
-  {
-    "id": "loc-018",
-    "name": "ค่ายทหาร",
-    "roles": [
-      "ทหารเกณฑ์",
-      "ผู้บังคับบัญชา",
-      "ครูฝึก",
-      "แพทย์ทหาร",
-      "พลขับ",
-      "พลครัว",
-      "ยามประตู",
-      "ช่างอาวุธ",
-      "นายสิบ",
-      "ทหารใหม่"
-    ]
-  },
-  {
-    "id": "loc-019",
-    "name": "สถานีรถไฟ",
-    "roles": [
-      "นายสถานี",
-      "พนักงานขายตั๋ว",
-      "ผู้โดยสาร",
-      "พนักงานขับรถไฟ",
-      "พนักงานตรวจตั๋ว",
-      "แม่ค้าชานชาลา",
-      "พนักงานยกกระเป๋า",
-      "ช่างซ่อมราง",
-      "นักท่องเที่ยว",
-      "รปภ."
-    ]
-  },
-  {
-    "id": "loc-020",
-    "name": "สำนักงานบริษัท",
-    "roles": [
-      "ผู้จัดการ",
-      "พนักงานบัญชี",
-      "โปรแกรมเมอร์",
-      "HR",
-      "พนักงานขาย",
-      "แม่บ้าน",
-      "นักศึกษาฝึกงาน",
-      "CEO",
-      "ฝ่ายการตลาด",
-      "ช่างไอที"
-    ]
-  },
-  {
-    "id": "loc-021",
-    "name": "ตลาดนัด",
-    "roles": [
-      "แม่ค้า",
-      "ลูกค้า",
-      "คนเก็บค่าเช่าแผง",
-      "คนขายผลไม้",
-      "คนขายเสื้อผ้า",
-      "รปภ.",
-      "คนขนของ",
-      "พ่อค้าหมูปิ้ง",
-      "คนต่อราคา",
-      "คนเก็บขยะ"
-    ]
-  },
-  {
-    "id": "loc-022",
-    "name": "ฟิตเนส",
-    "roles": [
-      "เทรนเนอร์",
-      "สมาชิกฟิตเนส",
-      "พนักงานต้อนรับ",
-      "คนทำความสะอาด",
-      "นักเพาะกาย",
-      "ครูโยคะ",
-      "เจ้าของยิม",
-      "นักกายภาพ",
-      "คนขายโปรตีน",
-      "สมาชิกใหม่"
-    ]
-  },
-  {
-    "id": "loc-023",
-    "name": "ร้านกาแฟ",
-    "roles": [
-      "บาริสต้า",
-      "ลูกค้า",
-      "แคชเชียร์",
-      "คนทำขนม",
-      "เจ้าของร้าน",
-      "ฟรีแลนซ์นั่งทำงาน",
-      "ไรเดอร์ส่งอาหาร",
-      "นักเรียนอ่านหนังสือ",
-      "ช่างภาพ",
-      "คนคั่วกาแฟ"
-    ]
-  },
-  {
-    "id": "loc-024",
-    "name": "สนามฟุตบอล",
-    "roles": [
-      "นักฟุตบอล",
-      "ผู้รักษาประตู",
-      "กรรมการ",
-      "โค้ช",
-      "แฟนบอล",
-      "นักข่าวกีฬา",
-      "แพทย์สนาม",
-      "เด็กเก็บบอล",
-      "ผู้บรรยาย",
-      "รปภ."
-    ]
-  },
-  {
-    "id": "loc-025",
-    "name": "เรือนจำ",
-    "roles": [
-      "ผู้คุม",
-      "นักโทษ",
-      "ทนาย",
-      "ญาติเยี่ยม",
-      "หมอเรือนจำ",
-      "เจ้าหน้าที่ครัว",
-      "ผู้บัญชาการเรือนจำ",
-      "นักจิตวิทยา",
-      "นักข่าว",
-      "นักโทษใหม่"
-    ]
-  },
-  {
-    "id": "loc-026",
-    "name": "ไซต์ก่อสร้าง",
-    "roles": [
-      "วิศวกรโครงการ",
-      "โฟร์แมน",
-      "คนงาน",
-      "สถาปนิก",
-      "เจ้าหน้าที่ความปลอดภัย",
-      "ช่างไฟ",
-      "ช่างประปา",
-      "คนขับเครน",
-      "เจ้าของโครงการ",
-      "QS"
-    ]
-  },
-  {
-    "id": "loc-027",
-    "name": "โรงไฟฟ้า",
-    "roles": [
-      "วิศวกรไฟฟ้า",
-      "ช่างเทคนิค",
-      "โอเปอเรเตอร์",
-      "รปภ.",
-      "ผู้จัดการโรงไฟฟ้า",
-      "เจ้าหน้าที่ความปลอดภัย",
-      "ช่างซ่อมบำรุง",
-      "เจ้าหน้าที่สิ่งแวดล้อม",
-      "ผู้ตรวจสอบ",
-      "คนส่งอะไหล่"
-    ]
-  },
-  {
-    "id": "loc-028",
-    "name": "ดาต้าเซ็นเตอร์",
-    "roles": [
-      "วิศวกรระบบ",
-      "Network Engineer",
-      "ช่างไฟฟ้า",
-      "รปภ.",
-      "ลูกค้าองค์กร",
-      "เจ้าหน้าที่ NOC",
-      "ช่างแอร์",
-      "ผู้จัดการศูนย์ข้อมูล",
-      "ช่างสายไฟเบอร์",
-      "ผู้ตรวจสอบความปลอดภัย"
-    ]
-  },
-  {
-    "id": "loc-029",
-    "name": "ศูนย์ควบคุมรถไฟฟ้า",
-    "roles": [
-      "เจ้าหน้าที่ควบคุม",
-      "วิศวกรสัญญาณ",
-      "พนักงานขับรถไฟฟ้า",
-      "รปภ.",
-      "ช่างซ่อมบำรุง",
-      "ผู้โดยสารร้องเรียน",
-      "ผู้จัดการสถานี",
-      "เจ้าหน้าที่ประกาศ",
-      "พนักงานขายตั๋ว",
-      "ตำรวจ"
-    ]
-  },
-  {
-    "id": "loc-030",
-    "name": "สตูดิโอถ่ายทำ",
-    "roles": [
-      "ผู้กำกับ",
-      "นักแสดง",
-      "ช่างกล้อง",
-      "คนจัดไฟ",
-      "ช่างแต่งหน้า",
-      "โปรดิวเซอร์",
-      "คนเขียนบท",
-      "ผู้ช่วยกองถ่าย",
-      "คนถือไมค์",
-      "ผู้จัดการกอง"
-    ]
-  },
-  {
-    "id": "loc-031",
-    "name": "สถานีโทรทัศน์",
-    "roles": [
-      "ผู้ประกาศข่าว",
-      "ช่างกล้อง",
-      "โปรดิวเซอร์",
-      "ผู้กำกับรายการ",
-      "นักข่าว",
-      "ช่างเสียง",
-      "แขกรับเชิญ",
-      "ช่างไฟ",
-      "ผู้ควบคุมห้องส่ง",
-      "ผู้ชมในสตูดิโอ"
-    ]
-  },
-  {
-    "id": "loc-032",
-    "name": "สนามบินส่วนตัว",
-    "roles": [
-      "นักบินเจ็ต",
-      "มหาเศรษฐี",
-      "บอดี้การ์ด",
-      "ช่างเครื่อง",
-      "พนักงานภาคพื้น",
-      "พนักงานต้อนรับ VIP",
-      "คนขับรถลีมูซีน",
-      "เจ้าหน้าที่ศุลกากร",
-      "ผู้จัดการลานบิน",
-      "นักข่าว"
-    ]
-  },
-  {
-    "id": "loc-033",
-    "name": "สถานทูต",
-    "roles": [
-      "เอกอัครราชทูต",
-      "เจ้าหน้าที่วีซ่า",
-      "รปภ.",
-      "นักการทูต",
-      "ผู้ขอวีซ่า",
-      "ล่าม",
-      "เลขานุการ",
-      "เจ้าหน้าที่กงสุล",
-      "แขกรับเชิญ",
-      "พนักงานทำความสะอาด"
-    ]
-  },
-  {
-    "id": "loc-034",
-    "name": "ศาล",
-    "roles": [
-      "ผู้พิพากษา",
-      "อัยการ",
-      "ทนาย",
-      "จำเลย",
-      "โจทก์",
-      "พยาน",
-      "เจ้าหน้าที่ศาล",
-      "ตำรวจศาล",
-      "นักข่าว",
-      "เสมียน"
-    ]
-  },
-  {
-    "id": "loc-035",
-    "name": "คาสิโน",
-    "roles": [
-      "ดีลเลอร์",
-      "นักพนัน",
-      "รปภ.",
-      "ผู้จัดการคาสิโน",
-      "บาร์เทนเดอร์",
-      "นักร้อง",
-      "คนแลกชิป",
-      "นักท่องเที่ยว",
-      "กล้องวงจรปิด",
-      "เจ้าของคาสิโน"
-    ]
-  },
-  {
-    "id": "loc-036",
-    "name": "สวนสัตว์",
-    "roles": [
-      "สัตวแพทย์",
-      "คนให้อาหารสัตว์",
-      "นักท่องเที่ยว",
-      "ไกด์",
-      "รปภ.",
-      "คนขายตั๋ว",
-      "เด็กนักเรียน",
-      "ผู้ดูแลกรง",
-      "ช่างภาพ",
-      "ผู้อำนวยการสวนสัตว์"
-    ]
-  },
-  {
-    "id": "loc-037",
-    "name": "ร้านซ่อมรถ",
-    "roles": [
-      "ช่างยนต์",
-      "เจ้าของรถ",
-      "เจ้าของอู่",
-      "เด็กฝึกงาน",
-      "คนขายอะไหล่",
-      "ช่างสี",
-      "ช่างไฟรถยนต์",
-      "พนักงานรับรถ",
-      "คนล้างรถ",
-      "ลูกค้าประจำ"
-    ]
-  },
-  {
-    "id": "loc-038",
-    "name": "ท่าเรือ",
-    "roles": [
-      "กัปตันเรือ",
-      "คนงานท่าเรือ",
-      "เจ้าหน้าที่ศุลกากร",
-      "รปภ.",
-      "คนขับรถบรรทุก",
-      "ช่างเครน",
-      "ผู้โดยสาร",
-      "นายท่า",
-      "พนักงานคลังสินค้า",
-      "พ่อค้า"
-    ]
-  },
-  {
-    "id": "loc-039",
-    "name": "เหมืองแร่",
-    "roles": [
-      "คนงานเหมือง",
-      "วิศวกรเหมือง",
-      "หัวหน้าคนงาน",
-      "รปภ.",
-      "คนขับรถบรรทุกยักษ์",
-      "นักธรณีวิทยา",
-      "แพทย์สนาม",
-      "ช่างระเบิด",
-      "ผู้จัดการเหมือง",
-      "เจ้าหน้าที่ความปลอดภัย"
-    ]
-  },
-  {
-    "id": "loc-040",
-    "name": "ห้องแล็บวิจัย",
-    "roles": [
-      "นักวิทยาศาสตร์",
-      "ผู้ช่วยวิจัย",
-      "หัวหน้าแล็บ",
-      "นักศึกษาปริญญาเอก",
-      "ช่างเทคนิค",
-      "เจ้าหน้าที่ความปลอดภัย",
-      "คนทำความสะอาด",
-      "ผู้สนับสนุนทุน",
-      "นักข่าววิทยาศาสตร์",
-      "หุ่นยนต์ทดลอง"
-    ]
-  },
-  {
-    "id": "loc-041",
-    "name": "ร้านตัดผม",
-    "roles": [
-      "ช่างตัดผม",
-      "ลูกค้า",
-      "เจ้าของร้าน",
-      "ช่างสระผม",
-      "เด็กฝึกงาน",
-      "คนรอคิว",
-      "ช่างทำสีผม",
-      "คนขายผลิตภัณฑ์",
-      "ลูกค้าประจำ",
-      "แคชเชียร์"
-    ]
-  },
-  {
-    "id": "loc-042",
-    "name": "ซูเปอร์มาร์เก็ต",
-    "roles": [
-      "แคชเชียร์",
-      "ลูกค้า",
-      "พนักงานเติมของ",
-      "ผู้จัดการสาขา",
-      "รปภ.",
-      "คนชั่งผัก",
-      "พนักงานเบเกอรี่",
-      "พนักงานคลังสินค้า",
-      "แม่บ้าน",
-      "คนส่งของ"
-    ]
-  },
-  {
-    "id": "loc-043",
-    "name": "คลินิกสัตว์",
-    "roles": [
-      "สัตวแพทย์",
-      "ผู้ช่วยสัตวแพทย์",
-      "เจ้าของสัตว์",
-      "สุนัขป่วย",
-      "แมวป่วย",
-      "พนักงานต้อนรับ",
-      "ช่างอาบน้ำสัตว์",
-      "คนขายอาหารสัตว์",
-      "นักศึกษาฝึกงาน",
-      "เจ้าของคลินิก"
-    ]
-  },
-  {
-    "id": "loc-044",
-    "name": "โรงงาน",
-    "roles": [
-      "ผู้จัดการโรงงาน",
-      "หัวหน้ากะ",
-      "คนงานไลน์ผลิต",
-      "วิศวกรผลิต",
-      "QC",
-      "ช่างซ่อมบำรุง",
-      "รปภ.",
-      "พนักงานคลังสินค้า",
-      "เจ้าหน้าที่ความปลอดภัย",
-      "คนขับโฟล์คลิฟท์"
-    ]
-  },
-  {
-    "id": "loc-045",
-    "name": "งานแต่งงาน",
-    "roles": [
-      "เจ้าบ่าว",
-      "เจ้าสาว",
-      "เพื่อนเจ้าบ่าว",
-      "เพื่อนเจ้าสาว",
-      "ช่างภาพ",
-      "พิธีกร",
-      "แขก",
-      "พนักงานจัดเลี้ยง",
-      "นักดนตรี",
-      "เวดดิ้งแพลนเนอร์"
-    ]
-  },
-  {
-    "id": "loc-046",
-    "name": "คลับกลางคืน",
-    "roles": [
-      "ดีเจ",
-      "นักเที่ยว",
-      "บาร์เทนเดอร์",
-      "รปภ.",
-      "นักร้อง",
-      "เจ้าของคลับ",
-      "พนักงานเสิร์ฟ",
-      "ช่างไฟ",
-      "คนคุมเสียง",
-      "VIP"
-    ]
-  },
-  {
-    "id": "loc-047",
-    "name": "ห้องสมุด",
-    "roles": [
-      "บรรณารักษ์",
-      "นักเรียนอ่านหนังสือ",
-      "นักวิจัย",
-      "รปภ.",
-      "คนคืนหนังสือ",
-      "อาจารย์",
-      "นักเขียน",
-      "เจ้าหน้าที่ไอที",
-      "เด็กทำเสียงดัง",
-      "คนทำความสะอาด"
-    ]
-  },
-  {
-    "id": "loc-048",
-    "name": "ลานสกี",
-    "roles": [
-      "ครูสอนสกี",
-      "นักสกี",
-      "เจ้าหน้าที่กระเช้า",
-      "แพทย์ฉุกเฉิน",
-      "คนเช่าอุปกรณ์",
-      "ช่างซ่อมสกี",
-      "นักท่องเที่ยว",
-      "ผู้จัดการรีสอร์ต",
-      "เด็กฝึกสกี",
-      "ช่างภาพ"
-    ]
-  },
-  {
-    "id": "loc-049",
-    "name": "ปั๊มน้ำมัน",
-    "roles": [
-      "เด็กปั๊ม",
-      "ลูกค้า",
-      "แคชเชียร์",
-      "เจ้าของปั๊ม",
-      "คนขับรถบรรทุก",
-      "พนักงานร้านสะดวกซื้อ",
-      "ช่างล้างรถ",
-      "รปภ.",
-      "ไรเดอร์",
-      "คนเติมลมยาง"
-    ]
-  },
-  {
-    "id": "loc-050",
-    "name": "เครื่องบินโดยสาร",
-    "roles": [
-      "นักบิน",
-      "ผู้ช่วยนักบิน",
-      "แอร์โฮสเตส",
-      "ผู้โดยสารชั้นธุรกิจ",
-      "ผู้โดยสารชั้นประหยัด",
-      "เด็กทารก",
-      "ช่างซ่อมเครื่อง",
-      "แอร์เพอร์เซอร์",
-      "นักธุรกิจ",
-      "นักท่องเที่ยว"
-    ]
-  },
-  {
-    "id": "loc-051",
-    "name": "รถบัสทัวร์",
-    "roles": [
-      "คนขับรถ",
-      "ไกด์",
-      "นักท่องเที่ยว",
-      "เด็กนักเรียน",
-      "ครูคุมทริป",
-      "พนักงานขายของฝาก",
-      "ช่างซ่อมรถ",
-      "ผู้โดยสารเมารถ",
-      "หัวหน้าทัวร์",
-      "ช่างภาพ"
-    ]
-  },
-  {
-    "id": "loc-052",
-    "name": "คอนเสิร์ต",
-    "roles": [
-      "นักร้อง",
-      "มือกีตาร์",
-      "มือกลอง",
-      "แฟนเพลง",
-      "รปภ.",
-      "ช่างเสียง",
-      "ช่างไฟ",
-      "ผู้จัดงาน",
-      "คนขายเสื้อวง",
-      "พิธีกร"
-    ]
-  },
-  {
-    "id": "loc-053",
-    "name": "โรงละคร",
-    "roles": [
-      "นักแสดง",
-      "ผู้กำกับละคร",
-      "คนดู",
-      "คนขายตั๋ว",
-      "ช่างไฟ",
-      "ช่างเสียง",
-      "ช่างแต่งหน้า",
-      "คนเปิดม่าน",
-      "นักวิจารณ์",
-      "ผู้จัดการโรงละคร"
-    ]
-  },
-  {
-    "id": "loc-054",
-    "name": "หมู่บ้านจัดสรร",
-    "roles": [
-      "นิติบุคคล",
-      "รปภ.",
-      "ลูกบ้าน",
-      "ช่างสวน",
-      "คนส่งพัสดุ",
-      "แม่บ้าน",
-      "ประธานหมู่บ้าน",
-      "เด็กเล่นจักรยาน",
-      "นายหน้า",
-      "ช่างซ่อมบ้าน"
-    ]
-  },
-  {
-    "id": "loc-055",
-    "name": "ออฟฟิศ IT",
-    "roles": [
-      "Developer",
-      "Tester",
-      "Product Manager",
-      "UX Designer",
-      "DevOps",
-      "Scrum Master",
-      "Support",
+      "Manager",
       "Intern",
-      "CTO",
-      "ลูกค้า Demo"
+      "Security Guard",
+      "Cleaner",
+      "Technician",
+      "Engineer",
+      "Supervisor",
+      "Director",
+      "Ghost Hunter",
+      "Treasure Hunter"
     ]
   },
   {
-    "id": "loc-056",
-    "name": "ห้องประชุมโครงการ",
+    "name": "Hospital",
+    "roles": [
+      "Intern",
+      "Security Guard",
+      "Cleaner",
+      "Technician",
+      "Engineer",
+      "Supervisor",
+      "Director",
+      "Receptionist",
+      "Conspiracy Blogger",
+      "Fortune Teller"
+    ]
+  },
+  {
+    "name": "School",
+    "roles": [
+      "Security Guard",
+      "Cleaner",
+      "Technician",
+      "Engineer",
+      "Supervisor",
+      "Director",
+      "Receptionist",
+      "Visitor",
+      "Magician",
+      "Cosplayer"
+    ]
+  },
+  {
+    "name": "University",
+    "roles": [
+      "Cleaner",
+      "Technician",
+      "Engineer",
+      "Supervisor",
+      "Director",
+      "Receptionist",
+      "Visitor",
+      "Photographer",
+      "Food Critic",
+      "Drone Racer"
+    ]
+  },
+  {
+    "name": "Police Station",
+    "roles": [
+      "Technician",
+      "Engineer",
+      "Supervisor",
+      "Director",
+      "Receptionist",
+      "Visitor",
+      "Photographer",
+      "Journalist",
+      "Alien Tourist",
+      "Time Traveler"
+    ]
+  },
+  {
+    "name": "Fire Station",
+    "roles": [
+      "Engineer",
+      "Supervisor",
+      "Director",
+      "Receptionist",
+      "Visitor",
+      "Photographer",
+      "Journalist",
+      "Inspector",
+      "Meme Creator",
+      "Professional Sleeper"
+    ]
+  },
+  {
+    "name": "Bank",
+    "roles": [
+      "Supervisor",
+      "Director",
+      "Receptionist",
+      "Visitor",
+      "Photographer",
+      "Journalist",
+      "Inspector",
+      "Tourist",
+      "Cat Whisperer",
+      "Duck Trainer"
+    ]
+  },
+  {
+    "name": "Shopping Mall",
+    "roles": [
+      "Director",
+      "Receptionist",
+      "Visitor",
+      "Photographer",
+      "Journalist",
+      "Inspector",
+      "Tourist",
+      "Vendor",
+      "Robot Therapist",
+      "Influencer"
+    ]
+  },
+  {
+    "name": "Cinema",
+    "roles": [
+      "Receptionist",
+      "Visitor",
+      "Photographer",
+      "Journalist",
+      "Inspector",
+      "Tourist",
+      "Vendor",
+      "Chef",
+      "Street Musician",
+      "Escape Artist"
+    ]
+  },
+  {
+    "name": "Museum",
+    "roles": [
+      "Visitor",
+      "Photographer",
+      "Journalist",
+      "Inspector",
+      "Tourist",
+      "Vendor",
+      "Chef",
+      "Delivery Driver",
+      "Treasure Map Seller",
+      "Fake Inspector"
+    ]
+  },
+  {
+    "name": "Temple",
+    "roles": [
+      "Photographer",
+      "Journalist",
+      "Inspector",
+      "Tourist",
+      "Vendor",
+      "Chef",
+      "Delivery Driver",
+      "Electrician",
+      "Ghost Hunter",
+      "Treasure Hunter"
+    ]
+  },
+  {
+    "name": "Church",
+    "roles": [
+      "Journalist",
+      "Inspector",
+      "Tourist",
+      "Vendor",
+      "Chef",
+      "Delivery Driver",
+      "Electrician",
+      "Plumber",
+      "Conspiracy Blogger",
+      "Fortune Teller"
+    ]
+  },
+  {
+    "name": "Mosque",
+    "roles": [
+      "Inspector",
+      "Tourist",
+      "Vendor",
+      "Chef",
+      "Delivery Driver",
+      "Electrician",
+      "Plumber",
+      "Mechanic",
+      "Magician",
+      "Cosplayer"
+    ]
+  },
+  {
+    "name": "Construction Site",
+    "roles": [
+      "Tourist",
+      "Vendor",
+      "Chef",
+      "Delivery Driver",
+      "Electrician",
+      "Plumber",
+      "Mechanic",
+      "Teacher",
+      "Food Critic",
+      "Drone Racer"
+    ]
+  },
+  {
+    "name": "Power Plant",
+    "roles": [
+      "Vendor",
+      "Chef",
+      "Delivery Driver",
+      "Electrician",
+      "Plumber",
+      "Mechanic",
+      "Teacher",
+      "Student",
+      "Alien Tourist",
+      "Time Traveler"
+    ]
+  },
+  {
+    "name": "Factory",
+    "roles": [
+      "Chef",
+      "Delivery Driver",
+      "Electrician",
+      "Plumber",
+      "Mechanic",
+      "Teacher",
+      "Student",
+      "Doctor",
+      "Meme Creator",
+      "Professional Sleeper"
+    ]
+  },
+  {
+    "name": "Warehouse",
+    "roles": [
+      "Delivery Driver",
+      "Electrician",
+      "Plumber",
+      "Mechanic",
+      "Teacher",
+      "Student",
+      "Doctor",
+      "Nurse",
+      "Cat Whisperer",
+      "Duck Trainer"
+    ]
+  },
+  {
+    "name": "Farm",
+    "roles": [
+      "Electrician",
+      "Plumber",
+      "Mechanic",
+      "Teacher",
+      "Student",
+      "Doctor",
+      "Nurse",
+      "Scientist",
+      "Robot Therapist",
+      "Influencer"
+    ]
+  },
+  {
+    "name": "Zoo",
+    "roles": [
+      "Plumber",
+      "Mechanic",
+      "Teacher",
+      "Student",
+      "Doctor",
+      "Nurse",
+      "Scientist",
+      "Lawyer",
+      "Street Musician",
+      "Escape Artist"
+    ]
+  },
+  {
+    "name": "Aquarium",
+    "roles": [
+      "Mechanic",
+      "Teacher",
+      "Student",
+      "Doctor",
+      "Nurse",
+      "Scientist",
+      "Lawyer",
+      "Judge",
+      "Treasure Map Seller",
+      "Fake Inspector"
+    ]
+  },
+  {
+    "name": "Cruise Ship",
+    "roles": [
+      "Teacher",
+      "Student",
+      "Doctor",
+      "Nurse",
+      "Scientist",
+      "Lawyer",
+      "Judge",
+      "Police Officer",
+      "Ghost Hunter",
+      "Treasure Hunter"
+    ]
+  },
+  {
+    "name": "Submarine",
+    "roles": [
+      "Student",
+      "Doctor",
+      "Nurse",
+      "Scientist",
+      "Lawyer",
+      "Judge",
+      "Police Officer",
+      "Firefighter",
+      "Conspiracy Blogger",
+      "Fortune Teller"
+    ]
+  },
+  {
+    "name": "Space Station",
+    "roles": [
+      "Doctor",
+      "Nurse",
+      "Scientist",
+      "Lawyer",
+      "Judge",
+      "Police Officer",
+      "Firefighter",
+      "Pilot",
+      "Magician",
+      "Cosplayer"
+    ]
+  },
+  {
+    "name": "Embassy",
+    "roles": [
+      "Nurse",
+      "Scientist",
+      "Lawyer",
+      "Judge",
+      "Police Officer",
+      "Firefighter",
+      "Pilot",
+      "Captain",
+      "Food Critic",
+      "Drone Racer"
+    ]
+  },
+  {
+    "name": "Hotel",
+    "roles": [
+      "Scientist",
+      "Lawyer",
+      "Judge",
+      "Police Officer",
+      "Firefighter",
+      "Pilot",
+      "Captain",
+      "Navigator",
+      "Alien Tourist",
+      "Time Traveler"
+    ]
+  },
+  {
+    "name": "Resort",
+    "roles": [
+      "Lawyer",
+      "Judge",
+      "Police Officer",
+      "Firefighter",
+      "Pilot",
+      "Captain",
+      "Navigator",
+      "Bartender",
+      "Meme Creator",
+      "Professional Sleeper"
+    ]
+  },
+  {
+    "name": "Restaurant",
+    "roles": [
+      "Judge",
+      "Police Officer",
+      "Firefighter",
+      "Pilot",
+      "Captain",
+      "Navigator",
+      "Bartender",
+      "Cashier",
+      "Cat Whisperer",
+      "Duck Trainer"
+    ]
+  },
+  {
+    "name": "Coffee Shop",
+    "roles": [
+      "Police Officer",
+      "Firefighter",
+      "Pilot",
+      "Captain",
+      "Navigator",
+      "Bartender",
+      "Cashier",
+      "Accountant",
+      "Robot Therapist",
+      "Influencer"
+    ]
+  },
+  {
+    "name": "Night Market",
+    "roles": [
+      "Firefighter",
+      "Pilot",
+      "Captain",
+      "Navigator",
+      "Bartender",
+      "Cashier",
+      "Accountant",
+      "Programmer",
+      "Street Musician",
+      "Escape Artist"
+    ]
+  },
+  {
+    "name": "Train Station",
+    "roles": [
+      "Pilot",
+      "Captain",
+      "Navigator",
+      "Bartender",
+      "Cashier",
+      "Accountant",
+      "Programmer",
+      "UX Designer",
+      "Treasure Map Seller",
+      "Fake Inspector"
+    ]
+  },
+  {
+    "name": "Bus Terminal",
+    "roles": [
+      "Captain",
+      "Navigator",
+      "Bartender",
+      "Cashier",
+      "Accountant",
+      "Programmer",
+      "UX Designer",
+      "Project Manager",
+      "Ghost Hunter",
+      "Treasure Hunter"
+    ]
+  },
+  {
+    "name": "Port",
+    "roles": [
+      "Navigator",
+      "Bartender",
+      "Cashier",
+      "Accountant",
+      "Programmer",
+      "UX Designer",
+      "Project Manager",
+      "QA Tester",
+      "Conspiracy Blogger",
+      "Fortune Teller"
+    ]
+  },
+  {
+    "name": "Lighthouse",
+    "roles": [
+      "Bartender",
+      "Cashier",
+      "Accountant",
+      "Programmer",
+      "UX Designer",
+      "Project Manager",
+      "QA Tester",
+      "DevOps Engineer",
+      "Magician",
+      "Cosplayer"
+    ]
+  },
+  {
+    "name": "Library",
+    "roles": [
+      "Cashier",
+      "Accountant",
+      "Programmer",
+      "UX Designer",
+      "Project Manager",
+      "QA Tester",
+      "DevOps Engineer",
+      "Manager",
+      "Food Critic",
+      "Drone Racer"
+    ]
+  },
+  {
+    "name": "Court",
+    "roles": [
+      "Accountant",
+      "Programmer",
+      "UX Designer",
+      "Project Manager",
+      "QA Tester",
+      "DevOps Engineer",
+      "Manager",
+      "Intern",
+      "Alien Tourist",
+      "Time Traveler"
+    ]
+  },
+  {
+    "name": "Prison",
+    "roles": [
+      "Programmer",
+      "UX Designer",
+      "Project Manager",
+      "QA Tester",
+      "DevOps Engineer",
+      "Manager",
+      "Intern",
+      "Security Guard",
+      "Meme Creator",
+      "Professional Sleeper"
+    ]
+  },
+  {
+    "name": "Military Base",
+    "roles": [
+      "UX Designer",
+      "Project Manager",
+      "QA Tester",
+      "DevOps Engineer",
+      "Manager",
+      "Intern",
+      "Security Guard",
+      "Cleaner",
+      "Cat Whisperer",
+      "Duck Trainer"
+    ]
+  },
+  {
+    "name": "Research Lab",
     "roles": [
       "Project Manager",
-      "Project Control",
-      "วิศวกร",
-      "ผู้รับเหมา",
-      "ลูกค้า",
-      "QS",
-      "Planner",
-      "Document Control",
-      "Safety Officer",
-      "Consultant"
+      "QA Tester",
+      "DevOps Engineer",
+      "Manager",
+      "Intern",
+      "Security Guard",
+      "Cleaner",
+      "Technician",
+      "Robot Therapist",
+      "Influencer"
+    ]
+  },
+  {
+    "name": "TV Studio",
+    "roles": [
+      "QA Tester",
+      "DevOps Engineer",
+      "Manager",
+      "Intern",
+      "Security Guard",
+      "Cleaner",
+      "Technician",
+      "Engineer",
+      "Street Musician",
+      "Escape Artist"
+    ]
+  },
+  {
+    "name": "Radio Station",
+    "roles": [
+      "DevOps Engineer",
+      "Manager",
+      "Intern",
+      "Security Guard",
+      "Cleaner",
+      "Technician",
+      "Engineer",
+      "Supervisor",
+      "Treasure Map Seller",
+      "Fake Inspector"
+    ]
+  },
+  {
+    "name": "Data Center",
+    "roles": [
+      "Manager",
+      "Intern",
+      "Security Guard",
+      "Cleaner",
+      "Technician",
+      "Engineer",
+      "Supervisor",
+      "Director",
+      "Ghost Hunter",
+      "Treasure Hunter"
+    ]
+  },
+  {
+    "name": "IT Company",
+    "roles": [
+      "Intern",
+      "Security Guard",
+      "Cleaner",
+      "Technician",
+      "Engineer",
+      "Supervisor",
+      "Director",
+      "Receptionist",
+      "Conspiracy Blogger",
+      "Fortune Teller"
+    ]
+  },
+  {
+    "name": "Startup Office",
+    "roles": [
+      "Security Guard",
+      "Cleaner",
+      "Technician",
+      "Engineer",
+      "Supervisor",
+      "Director",
+      "Receptionist",
+      "Visitor",
+      "Magician",
+      "Cosplayer"
+    ]
+  },
+  {
+    "name": "Game Studio",
+    "roles": [
+      "Cleaner",
+      "Technician",
+      "Engineer",
+      "Supervisor",
+      "Director",
+      "Receptionist",
+      "Visitor",
+      "Photographer",
+      "Food Critic",
+      "Drone Racer"
+    ]
+  },
+  {
+    "name": "Airport Lounge",
+    "roles": [
+      "Technician",
+      "Engineer",
+      "Supervisor",
+      "Director",
+      "Receptionist",
+      "Visitor",
+      "Photographer",
+      "Journalist",
+      "Alien Tourist",
+      "Time Traveler"
+    ]
+  },
+  {
+    "name": "Mountain Cabin",
+    "roles": [
+      "Engineer",
+      "Supervisor",
+      "Director",
+      "Receptionist",
+      "Visitor",
+      "Photographer",
+      "Journalist",
+      "Inspector",
+      "Meme Creator",
+      "Professional Sleeper"
+    ]
+  },
+  {
+    "name": "Beach",
+    "roles": [
+      "Supervisor",
+      "Director",
+      "Receptionist",
+      "Visitor",
+      "Photographer",
+      "Journalist",
+      "Inspector",
+      "Tourist",
+      "Cat Whisperer",
+      "Duck Trainer"
+    ]
+  },
+  {
+    "name": "Island",
+    "roles": [
+      "Director",
+      "Receptionist",
+      "Visitor",
+      "Photographer",
+      "Journalist",
+      "Inspector",
+      "Tourist",
+      "Vendor",
+      "Robot Therapist",
+      "Influencer"
+    ]
+  },
+  {
+    "name": "Water Park",
+    "roles": [
+      "Receptionist",
+      "Visitor",
+      "Photographer",
+      "Journalist",
+      "Inspector",
+      "Tourist",
+      "Vendor",
+      "Chef",
+      "Street Musician",
+      "Escape Artist"
+    ]
+  },
+  {
+    "name": "Amusement Park",
+    "roles": [
+      "Visitor",
+      "Photographer",
+      "Journalist",
+      "Inspector",
+      "Tourist",
+      "Vendor",
+      "Chef",
+      "Delivery Driver",
+      "Treasure Map Seller",
+      "Fake Inspector"
+    ]
+  },
+  {
+    "name": "Casino",
+    "roles": [
+      "Photographer",
+      "Journalist",
+      "Inspector",
+      "Tourist",
+      "Vendor",
+      "Chef",
+      "Delivery Driver",
+      "Electrician",
+      "Ghost Hunter",
+      "Treasure Hunter"
+    ]
+  },
+  {
+    "name": "Concert Hall",
+    "roles": [
+      "Journalist",
+      "Inspector",
+      "Tourist",
+      "Vendor",
+      "Chef",
+      "Delivery Driver",
+      "Electrician",
+      "Plumber",
+      "Conspiracy Blogger",
+      "Fortune Teller"
+    ]
+  },
+  {
+    "name": "Opera House",
+    "roles": [
+      "Inspector",
+      "Tourist",
+      "Vendor",
+      "Chef",
+      "Delivery Driver",
+      "Electrician",
+      "Plumber",
+      "Mechanic",
+      "Magician",
+      "Cosplayer"
+    ]
+  },
+  {
+    "name": "Art Gallery",
+    "roles": [
+      "Tourist",
+      "Vendor",
+      "Chef",
+      "Delivery Driver",
+      "Electrician",
+      "Plumber",
+      "Mechanic",
+      "Teacher",
+      "Food Critic",
+      "Drone Racer"
+    ]
+  },
+  {
+    "name": "Gym",
+    "roles": [
+      "Vendor",
+      "Chef",
+      "Delivery Driver",
+      "Electrician",
+      "Plumber",
+      "Mechanic",
+      "Teacher",
+      "Student",
+      "Alien Tourist",
+      "Time Traveler"
+    ]
+  },
+  {
+    "name": "Boxing Stadium",
+    "roles": [
+      "Chef",
+      "Delivery Driver",
+      "Electrician",
+      "Plumber",
+      "Mechanic",
+      "Teacher",
+      "Student",
+      "Doctor",
+      "Meme Creator",
+      "Professional Sleeper"
+    ]
+  },
+  {
+    "name": "Football Stadium",
+    "roles": [
+      "Delivery Driver",
+      "Electrician",
+      "Plumber",
+      "Mechanic",
+      "Teacher",
+      "Student",
+      "Doctor",
+      "Nurse",
+      "Cat Whisperer",
+      "Duck Trainer"
+    ]
+  },
+  {
+    "name": "Basketball Arena",
+    "roles": [
+      "Electrician",
+      "Plumber",
+      "Mechanic",
+      "Teacher",
+      "Student",
+      "Doctor",
+      "Nurse",
+      "Scientist",
+      "Robot Therapist",
+      "Influencer"
+    ]
+  },
+  {
+    "name": "Golf Club",
+    "roles": [
+      "Plumber",
+      "Mechanic",
+      "Teacher",
+      "Student",
+      "Doctor",
+      "Nurse",
+      "Scientist",
+      "Lawyer",
+      "Street Musician",
+      "Escape Artist"
+    ]
+  },
+  {
+    "name": "Ski Resort",
+    "roles": [
+      "Mechanic",
+      "Teacher",
+      "Student",
+      "Doctor",
+      "Nurse",
+      "Scientist",
+      "Lawyer",
+      "Judge",
+      "Treasure Map Seller",
+      "Fake Inspector"
+    ]
+  },
+  {
+    "name": "Volcano Observatory",
+    "roles": [
+      "Teacher",
+      "Student",
+      "Doctor",
+      "Nurse",
+      "Scientist",
+      "Lawyer",
+      "Judge",
+      "Police Officer",
+      "Ghost Hunter",
+      "Treasure Hunter"
+    ]
+  },
+  {
+    "name": "Desert Camp",
+    "roles": [
+      "Student",
+      "Doctor",
+      "Nurse",
+      "Scientist",
+      "Lawyer",
+      "Judge",
+      "Police Officer",
+      "Firefighter",
+      "Conspiracy Blogger",
+      "Fortune Teller"
+    ]
+  },
+  {
+    "name": "Jungle Camp",
+    "roles": [
+      "Doctor",
+      "Nurse",
+      "Scientist",
+      "Lawyer",
+      "Judge",
+      "Police Officer",
+      "Firefighter",
+      "Pilot",
+      "Magician",
+      "Cosplayer"
+    ]
+  },
+  {
+    "name": "Arctic Base",
+    "roles": [
+      "Nurse",
+      "Scientist",
+      "Lawyer",
+      "Judge",
+      "Police Officer",
+      "Firefighter",
+      "Pilot",
+      "Captain",
+      "Food Critic",
+      "Drone Racer"
+    ]
+  },
+  {
+    "name": "Weather Station",
+    "roles": [
+      "Scientist",
+      "Lawyer",
+      "Judge",
+      "Police Officer",
+      "Firefighter",
+      "Pilot",
+      "Captain",
+      "Navigator",
+      "Alien Tourist",
+      "Time Traveler"
+    ]
+  },
+  {
+    "name": "Secret Bunker",
+    "roles": [
+      "Lawyer",
+      "Judge",
+      "Police Officer",
+      "Firefighter",
+      "Pilot",
+      "Captain",
+      "Navigator",
+      "Bartender",
+      "Meme Creator",
+      "Professional Sleeper"
+    ]
+  },
+  {
+    "name": "Underground Metro",
+    "roles": [
+      "Judge",
+      "Police Officer",
+      "Firefighter",
+      "Pilot",
+      "Captain",
+      "Navigator",
+      "Bartender",
+      "Cashier",
+      "Cat Whisperer",
+      "Duck Trainer"
+    ]
+  },
+  {
+    "name": "Tunnel",
+    "roles": [
+      "Police Officer",
+      "Firefighter",
+      "Pilot",
+      "Captain",
+      "Navigator",
+      "Bartender",
+      "Cashier",
+      "Accountant",
+      "Robot Therapist",
+      "Influencer"
+    ]
+  },
+  {
+    "name": "Dam",
+    "roles": [
+      "Firefighter",
+      "Pilot",
+      "Captain",
+      "Navigator",
+      "Bartender",
+      "Cashier",
+      "Accountant",
+      "Programmer",
+      "Street Musician",
+      "Escape Artist"
+    ]
+  },
+  {
+    "name": "Wind Farm",
+    "roles": [
+      "Pilot",
+      "Captain",
+      "Navigator",
+      "Bartender",
+      "Cashier",
+      "Accountant",
+      "Programmer",
+      "UX Designer",
+      "Treasure Map Seller",
+      "Fake Inspector"
+    ]
+  },
+  {
+    "name": "Solar Farm",
+    "roles": [
+      "Captain",
+      "Navigator",
+      "Bartender",
+      "Cashier",
+      "Accountant",
+      "Programmer",
+      "UX Designer",
+      "Project Manager",
+      "Ghost Hunter",
+      "Treasure Hunter"
+    ]
+  },
+  {
+    "name": "Recycling Center",
+    "roles": [
+      "Navigator",
+      "Bartender",
+      "Cashier",
+      "Accountant",
+      "Programmer",
+      "UX Designer",
+      "Project Manager",
+      "QA Tester",
+      "Conspiracy Blogger",
+      "Fortune Teller"
+    ]
+  },
+  {
+    "name": "Waste Plant",
+    "roles": [
+      "Bartender",
+      "Cashier",
+      "Accountant",
+      "Programmer",
+      "UX Designer",
+      "Project Manager",
+      "QA Tester",
+      "DevOps Engineer",
+      "Magician",
+      "Cosplayer"
+    ]
+  },
+  {
+    "name": "Post Office",
+    "roles": [
+      "Cashier",
+      "Accountant",
+      "Programmer",
+      "UX Designer",
+      "Project Manager",
+      "QA Tester",
+      "DevOps Engineer",
+      "Manager",
+      "Food Critic",
+      "Drone Racer"
+    ]
+  },
+  {
+    "name": "Courier Hub",
+    "roles": [
+      "Accountant",
+      "Programmer",
+      "UX Designer",
+      "Project Manager",
+      "QA Tester",
+      "DevOps Engineer",
+      "Manager",
+      "Intern",
+      "Alien Tourist",
+      "Time Traveler"
+    ]
+  },
+  {
+    "name": "Printing House",
+    "roles": [
+      "Programmer",
+      "UX Designer",
+      "Project Manager",
+      "QA Tester",
+      "DevOps Engineer",
+      "Manager",
+      "Intern",
+      "Security Guard",
+      "Meme Creator",
+      "Professional Sleeper"
+    ]
+  },
+  {
+    "name": "Bakery",
+    "roles": [
+      "UX Designer",
+      "Project Manager",
+      "QA Tester",
+      "DevOps Engineer",
+      "Manager",
+      "Intern",
+      "Security Guard",
+      "Cleaner",
+      "Cat Whisperer",
+      "Duck Trainer"
+    ]
+  },
+  {
+    "name": "Brewery",
+    "roles": [
+      "Project Manager",
+      "QA Tester",
+      "DevOps Engineer",
+      "Manager",
+      "Intern",
+      "Security Guard",
+      "Cleaner",
+      "Technician",
+      "Robot Therapist",
+      "Influencer"
+    ]
+  },
+  {
+    "name": "Chocolate Factory",
+    "roles": [
+      "QA Tester",
+      "DevOps Engineer",
+      "Manager",
+      "Intern",
+      "Security Guard",
+      "Cleaner",
+      "Technician",
+      "Engineer",
+      "Street Musician",
+      "Escape Artist"
+    ]
+  },
+  {
+    "name": "Perfume Lab",
+    "roles": [
+      "DevOps Engineer",
+      "Manager",
+      "Intern",
+      "Security Guard",
+      "Cleaner",
+      "Technician",
+      "Engineer",
+      "Supervisor",
+      "Treasure Map Seller",
+      "Fake Inspector"
+    ]
+  },
+  {
+    "name": "Pet Shop",
+    "roles": [
+      "Manager",
+      "Intern",
+      "Security Guard",
+      "Cleaner",
+      "Technician",
+      "Engineer",
+      "Supervisor",
+      "Director",
+      "Ghost Hunter",
+      "Treasure Hunter"
+    ]
+  },
+  {
+    "name": "Veterinary Clinic",
+    "roles": [
+      "Intern",
+      "Security Guard",
+      "Cleaner",
+      "Technician",
+      "Engineer",
+      "Supervisor",
+      "Director",
+      "Receptionist",
+      "Conspiracy Blogger",
+      "Fortune Teller"
+    ]
+  },
+  {
+    "name": "Flower Market",
+    "roles": [
+      "Security Guard",
+      "Cleaner",
+      "Technician",
+      "Engineer",
+      "Supervisor",
+      "Director",
+      "Receptionist",
+      "Visitor",
+      "Magician",
+      "Cosplayer"
+    ]
+  },
+  {
+    "name": "Furniture Store",
+    "roles": [
+      "Cleaner",
+      "Technician",
+      "Engineer",
+      "Supervisor",
+      "Director",
+      "Receptionist",
+      "Visitor",
+      "Photographer",
+      "Food Critic",
+      "Drone Racer"
+    ]
+  },
+  {
+    "name": "Jewelry Shop",
+    "roles": [
+      "Technician",
+      "Engineer",
+      "Supervisor",
+      "Director",
+      "Receptionist",
+      "Visitor",
+      "Photographer",
+      "Journalist",
+      "Alien Tourist",
+      "Time Traveler"
+    ]
+  },
+  {
+    "name": "Fashion Show",
+    "roles": [
+      "Engineer",
+      "Supervisor",
+      "Director",
+      "Receptionist",
+      "Visitor",
+      "Photographer",
+      "Journalist",
+      "Inspector",
+      "Meme Creator",
+      "Professional Sleeper"
+    ]
+  },
+  {
+    "name": "Film Set",
+    "roles": [
+      "Supervisor",
+      "Director",
+      "Receptionist",
+      "Visitor",
+      "Photographer",
+      "Journalist",
+      "Inspector",
+      "Tourist",
+      "Cat Whisperer",
+      "Duck Trainer"
+    ]
+  },
+  {
+    "name": "Wedding Hall",
+    "roles": [
+      "Director",
+      "Receptionist",
+      "Visitor",
+      "Photographer",
+      "Journalist",
+      "Inspector",
+      "Tourist",
+      "Vendor",
+      "Robot Therapist",
+      "Influencer"
+    ]
+  },
+  {
+    "name": "Funeral Home",
+    "roles": [
+      "Receptionist",
+      "Visitor",
+      "Photographer",
+      "Journalist",
+      "Inspector",
+      "Tourist",
+      "Vendor",
+      "Chef",
+      "Street Musician",
+      "Escape Artist"
+    ]
+  },
+  {
+    "name": "Escape Room",
+    "roles": [
+      "Visitor",
+      "Photographer",
+      "Journalist",
+      "Inspector",
+      "Tourist",
+      "Vendor",
+      "Chef",
+      "Delivery Driver",
+      "Treasure Map Seller",
+      "Fake Inspector"
+    ]
+  },
+  {
+    "name": "Karaoke",
+    "roles": [
+      "Photographer",
+      "Journalist",
+      "Inspector",
+      "Tourist",
+      "Vendor",
+      "Chef",
+      "Delivery Driver",
+      "Electrician",
+      "Ghost Hunter",
+      "Treasure Hunter"
+    ]
+  },
+  {
+    "name": "Arcade",
+    "roles": [
+      "Journalist",
+      "Inspector",
+      "Tourist",
+      "Vendor",
+      "Chef",
+      "Delivery Driver",
+      "Electrician",
+      "Plumber",
+      "Conspiracy Blogger",
+      "Fortune Teller"
+    ]
+  },
+  {
+    "name": "Board Game Cafe",
+    "roles": [
+      "Inspector",
+      "Tourist",
+      "Vendor",
+      "Chef",
+      "Delivery Driver",
+      "Electrician",
+      "Plumber",
+      "Mechanic",
+      "Magician",
+      "Cosplayer"
+    ]
+  },
+  {
+    "name": "Fishing Pier",
+    "roles": [
+      "Tourist",
+      "Vendor",
+      "Chef",
+      "Delivery Driver",
+      "Electrician",
+      "Plumber",
+      "Mechanic",
+      "Teacher",
+      "Food Critic",
+      "Drone Racer"
+    ]
+  },
+  {
+    "name": "Yacht Club",
+    "roles": [
+      "Vendor",
+      "Chef",
+      "Delivery Driver",
+      "Electrician",
+      "Plumber",
+      "Mechanic",
+      "Teacher",
+      "Student",
+      "Alien Tourist",
+      "Time Traveler"
+    ]
+  },
+  {
+    "name": "Camping Site",
+    "roles": [
+      "Chef",
+      "Delivery Driver",
+      "Electrician",
+      "Plumber",
+      "Mechanic",
+      "Teacher",
+      "Student",
+      "Doctor",
+      "Meme Creator",
+      "Professional Sleeper"
+    ]
+  },
+  {
+    "name": "Border Checkpoint",
+    "roles": [
+      "Delivery Driver",
+      "Electrician",
+      "Plumber",
+      "Mechanic",
+      "Teacher",
+      "Student",
+      "Doctor",
+      "Nurse",
+      "Cat Whisperer",
+      "Duck Trainer"
+    ]
+  },
+  {
+    "name": "Satellite Control",
+    "roles": [
+      "Electrician",
+      "Plumber",
+      "Mechanic",
+      "Teacher",
+      "Student",
+      "Doctor",
+      "Nurse",
+      "Scientist",
+      "Robot Therapist",
+      "Influencer"
+    ]
+  },
+  {
+    "name": "Rocket Launch Site",
+    "roles": [
+      "Plumber",
+      "Mechanic",
+      "Teacher",
+      "Student",
+      "Doctor",
+      "Nurse",
+      "Scientist",
+      "Lawyer",
+      "Street Musician",
+      "Escape Artist"
+    ]
+  },
+  {
+    "name": "AI Research Center",
+    "roles": [
+      "Mechanic",
+      "Teacher",
+      "Student",
+      "Doctor",
+      "Nurse",
+      "Scientist",
+      "Lawyer",
+      "Judge",
+      "Treasure Map Seller",
+      "Fake Inspector"
     ]
   }
 ]

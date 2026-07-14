@@ -15,8 +15,8 @@
       <h1>Spyfall Deluxe</h1>
       <p class="lead">เล่น 2–15 คน มีสถานที่ลับ บทบาทตัวละคร และ Spy ที่ต้องเนียนถามตอบให้รอด</p>
       <div class="stats">
-        <div><b id="landingLocationCount">56</b><span>สถานที่</span></div>
-        <div><b id="landingRoleCount">560</b><span>บทบาท</span></div>
+        <div><b id="landingLocationCount">100</b><span>สถานที่</span></div>
+        <div><b id="landingRoleCount">1000</b><span>บทบาท</span></div>
         <div><b>2–15</b><span>ผู้เล่น</span></div>
       </div>
       <div class="form-grid">
@@ -47,6 +47,19 @@
         <p id="secretText">Host กดเริ่มเมื่อผู้เล่นพร้อม</p>
       </section>
 
+      <section class="host-settings card-soft" id="hostSettings">
+        <div class="panel-head"><h3>ตั้งค่า Game Master</h3><span><b id="selectedCount">100</b> สถานที่ที่เลือก</span></div>
+        <div class="settings-row">
+          <div class="field"><label>จำนวนตัวเลือกช่วย Spy</label><select id="candidateCount"><option value="10">10 สถานที่</option><option value="15">15 สถานที่</option><option value="20" selected>20 สถานที่</option><option value="25">25 สถานที่</option><option value="30">30 สถานที่</option></select></div>
+          <input id="locationSearch" placeholder="ค้นหาสถานที่..." />
+          <button id="selectAllBtn" class="ghost">เลือกทั้งหมด</button>
+          <button id="clearAllBtn" class="ghost">ล้างทั้งหมด</button>
+          <button id="saveSettingsBtn" class="secondary">บันทึกชุดสถานที่</button>
+        </div>
+        <div id="locationPicker" class="location-picker"></div>
+        <p class="small">ระบบจะสุ่มสถานที่จริงจากชุดที่ Host เลือก และแสดงรายการช่วย Spy โดยมีสถานที่จริง 1 แห่งปะปนอยู่</p>
+      </section>
+
       <section class="controls card-soft">
         <div class="field"><label>เวลารอบ</label><select id="seconds"><option value="300">5 นาที</option><option value="480" selected>8 นาที</option><option value="600">10 นาที</option><option value="900">15 นาที</option><option value="1200">20 นาที</option></select></div>
         <div class="field"><label>จำนวน Spy</label><select id="spyCount"><option value="1" selected>1 คน</option><option value="2">2 คน</option><option value="3">3 คน</option></select></div>
@@ -65,6 +78,7 @@
           <ol class="rules">
             <li>ทุกคนยกเว้น Spy จะเห็นสถานที่เดียวกันและบทบาทของตัวเอง</li>
             <li>ถามตอบกันทีละคน ห้ามพูดสถานที่ตรง ๆ</li>
+            <li>Spy จะเห็นรายการตัวเลือกหลายสถานที่ โดยมีสถานที่จริงอยู่ในรายการ 1 แห่ง</li>
             <li>Spy ต้องเดาสถานที่ ส่วนคนอื่นต้องจับ Spy ให้ได้</li>
             <li>กดโหวตคนที่สงสัย แล้ว Host กดเฉลยเมื่อพร้อม</li>
           </ol>
