@@ -1,17 +1,18 @@
 {
-  "name": "spyfall-deluxe-th",
-  "version": "2.0.0",
-  "description": "Spyfall Deluxe Thai multiplayer web game with rooms, roles, locations, timer, voting and reveal.",
+  "name": "spyfall-thailand-v7",
+  "version": "7.0.0",
+  "private": true,
+  "description": "Spyfall Thailand with simplified host controls, optional spy hints, and room scoreboard",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js"
   },
-  "dependencies": {
-    "express": "^4.19.2",
-    "socket.io": "^4.7.5"
-  },
   "engines": {
     "node": ">=18"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "socket.io": "^4.8.1"
   }
 }

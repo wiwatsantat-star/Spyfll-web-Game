@@ -1,94 +1,147 @@
 <!doctype html>
 <html lang="th">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Spyfall Deluxe Thailand</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Spyfall Thailand</title>
+  <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-  <div class="bg-orb orb-a"></div><div class="bg-orb orb-b"></div>
-  <main class="app">
-    <section class="hero card" id="joinScreen">
-      <div class="logo">🕵️‍♂️</div>
-      <p class="eyebrow">Thai Multiplayer Party Game</p>
-      <h1>Spyfall Deluxe</h1>
-      <p class="lead">เล่น 2–15 คน มีสถานที่ลับ บทบาทตัวละคร และ Spy ที่ต้องเนียนถามตอบให้รอด</p>
-      <div class="stats">
-        <div><b id="landingLocationCount">100</b><span>สถานที่</span></div>
-        <div><b id="landingRoleCount">1000</b><span>บทบาท</span></div>
-        <div><b>2–15</b><span>ผู้เล่น</span></div>
+  <main class="app-shell">
+    <header class="hero">
+      <div>
+        <span class="eyebrow">MULTIPLAYER PARTY GAME</span>
+        <h1>Spyfall Thailand</h1>
+        <p>เกมค้นหา Spy พร้อมสถานที่จริงในประเทศไทย</p>
       </div>
-      <div class="form-grid">
-        <input id="name" maxlength="18" placeholder="ชื่อผู้เล่น" autocomplete="nickname" />
-        <button id="createBtn">สร้างห้องใหม่</button>
-        <input id="roomCode" maxlength="5" placeholder="รหัสห้อง เช่น A7K9Q" />
-        <button id="joinBtn" class="secondary">เข้าห้อง</button>
+      <div class="status-pill" id="connectionStatus">กำลังเชื่อมต่อ...</div>
+    </header>
+
+    <section id="homeView" class="panel">
+      <h2>เริ่มเกม</h2>
+      <label>ชื่อผู้เล่น<input id="playerName" maxlength="20" placeholder="กรอกชื่อ"></label>
+      <div class="grid two">
+        <button id="createRoomBtn" class="primary">สร้างห้อง</button>
+        <div class="join-box">
+          <input id="roomCodeInput" maxlength="5" placeholder="รหัสห้อง">
+          <button id="joinRoomBtn">เข้าห้อง</button>
+        </div>
       </div>
-      <p class="small">หลัง Deploy แล้ว ส่งลิงก์ + Room Code ให้เพื่อนเข้าเล่นได้ทันที</p>
+      <p class="muted">รองรับผู้เล่น 2–15 คน</p>
     </section>
 
-    <section class="game hidden" id="gameScreen">
-      <header class="topbar">
-        <div class="brand"><span>🕵️</span><strong>Spyfall Deluxe</strong></div>
-        <div class="room-pill">Room <button id="copyCode" title="Copy room code"><span id="codeLabel">-----</span></button></div>
-      </header>
+    <section id="roomView" class="hidden">
+      <div class="grid layout">
+        <section class="panel">
+          <div class="room-heading">
+            <div>
+              <span class="eyebrow">ROOM CODE</span>
+              <h2 id="roomCodeText">-----</h2>
+            </div>
+            <button id="copyRoomBtn">คัดลอกรหัส</button>
+          </div>
 
-      <section class="dashboard">
-        <div class="metric"><small>Status</small><b id="status">Lobby</b></div>
-        <div class="metric"><small>Time</small><b id="timer">--:--</b></div>
-        <div class="metric"><small>Locations</small><b><span id="locationCount">-</span> ที่</b></div>
-        <div class="metric"><small>Roles</small><b><span id="roleCount">-</span> บทบาท</b></div>
-      </section>
+          <div class="stats">
+            <div><span>ผู้เล่น</span><strong id="playerCount">0</strong></div>
+            <div><span>ตัวเลือกช่วย Spy</span><strong id="spyOptionStatus">เปิด</strong></div>
+            <div><span>จำนวนตัวเลือก</span><strong>30</strong></div>
+          </div>
 
-      <section class="secret-card" id="secretCard">
-        <div class="badge" id="secretBadge">บทบาทของคุณ</div>
-        <h2 id="roleText">รอเริ่มเกม</h2>
-        <p id="secretText">Host กดเริ่มเมื่อผู้เล่นพร้อม</p>
-      </section>
+          <h3>ผู้เล่นในห้อง</h3>
+          <div id="playersList" class="players-list"></div>
+        </section>
 
-      <section class="host-settings card-soft" id="hostSettings">
-        <div class="panel-head"><h3>ตั้งค่า Game Master</h3><span><b id="selectedCount">100</b> สถานที่ที่เลือก</span></div>
-        <div class="settings-row">
-          <div class="field"><label>จำนวนตัวเลือกช่วย Spy</label><select id="candidateCount"><option value="10">10 สถานที่</option><option value="15">15 สถานที่</option><option value="20" selected>20 สถานที่</option><option value="25">25 สถานที่</option><option value="30">30 สถานที่</option></select></div>
-          <input id="locationSearch" placeholder="ค้นหาสถานที่..." />
-          <button id="selectAllBtn" class="ghost">เลือกทั้งหมด</button>
-          <button id="clearAllBtn" class="ghost">ล้างทั้งหมด</button>
-          <button id="saveSettingsBtn" class="secondary">บันทึกชุดสถานที่</button>
+        <section class="panel">
+          <div class="section-title">
+            <div>
+              <span class="eyebrow">GAME MASTER</span>
+              <h2>ตั้งค่าเกม</h2>
+            </div>
+          </div>
+
+          <div id="hostSettings">
+            <div class="grid two settings-row">
+              <label>เวลา
+                <select id="durationSelect">
+                  <option value="300">5 นาที</option>
+                  <option value="480" selected>8 นาที</option>
+                  <option value="600">10 นาที</option>
+                  <option value="900">15 นาที</option>
+                </select>
+              </label>
+              <label>จำนวน Spy
+                <select id="spyCountSelect">
+                  <option value="1">1 คน</option>
+                  <option value="2">2 คน</option>
+                  <option value="3">3 คน</option>
+                </select>
+              </label>
+            </div>
+
+            <label class="toggle-setting">
+              <input id="showSpyOptionsCheckbox" type="checkbox" checked>
+              <span>
+                <strong>เปิดรายการช่วย Spy</strong>
+                <small>เมื่อเปิด Spy จะเห็นตัวเลือกสถานที่จำนวน 30 รายการ</small>
+              </span>
+            </label>
+
+            <button id="saveSettingsBtn">บันทึกการตั้งค่า</button>
+          </div>
+
+          <p id="guestMessage" class="muted hidden">เฉพาะ Host เท่านั้นที่ตั้งค่าเกมได้</p>
+
+          <div class="actions">
+            <button id="startRoundBtn" class="primary">เริ่มเกม</button>
+            <button id="revealBtn" class="danger hidden">เฉลย</button>
+            <button id="newRoundBtn" class="hidden">เริ่มรอบใหม่</button>
+          </div>
+        </section>
+      </div>
+
+
+      <section class="panel">
+        <div class="scoreboard-heading">
+          <div>
+            <span class="eyebrow">SCOREBOARD</span>
+            <h2>ตารางคะแนน</h2>
+          </div>
+          <button id="resetScoresBtn" class="danger hidden">รีเซ็ตคะแนน</button>
         </div>
-        <div id="locationPicker" class="location-picker"></div>
-        <p class="small">ระบบจะสุ่มสถานที่จริงจากชุดที่ Host เลือก และแสดงรายการช่วย Spy โดยมีสถานที่จริง 1 แห่งปะปนอยู่</p>
+        <div id="scoreboardList" class="scoreboard-list"></div>
+        <p id="scoreboardHint" class="muted hidden">Host สามารถเพิ่มหรือลดคะแนนให้ผู้เล่นได้</p>
       </section>
 
-      <section class="controls card-soft">
-        <div class="field"><label>เวลารอบ</label><select id="seconds"><option value="300">5 นาที</option><option value="480" selected>8 นาที</option><option value="600">10 นาที</option><option value="900">15 นาที</option><option value="1200">20 นาที</option></select></div>
-        <div class="field"><label>จำนวน Spy</label><select id="spyCount"><option value="1" selected>1 คน</option><option value="2">2 คน</option><option value="3">3 คน</option></select></div>
-        <button id="startBtn">เริ่มรอบ</button>
-        <button id="endBtn" class="danger">เฉลย</button>
-        <button id="resetBtn" class="ghost">กลับ Lobby</button>
+      <section id="gamePanel" class="panel hidden">
+        <div class="game-top">
+          <div>
+            <span class="eyebrow">ROUND IN PROGRESS</span>
+            <h2 id="timerText">00:00</h2>
+          </div>
+          <button id="hideSecretBtn">ซ่อน/แสดงการ์ดลับ</button>
+        </div>
+
+        <div id="secretCard" class="secret-card">
+          <h2 id="secretTitle">การ์ดลับ</h2>
+          <p id="secretSubtitle"></p>
+          <div id="secretContent"></div>
+        </div>
+
+        <h3>โหวตผู้ต้องสงสัย</h3>
+        <div id="voteList" class="vote-list"></div>
       </section>
 
-      <section class="grid-2">
-        <div class="panel card-soft">
-          <div class="panel-head"><h3>ผู้เล่น</h3><span id="playerCount">0/15</span></div>
-          <div id="players" class="players"></div>
-        </div>
-        <div class="panel card-soft">
-          <h3>วิธีเล่น</h3>
-          <ol class="rules">
-            <li>ทุกคนยกเว้น Spy จะเห็นสถานที่เดียวกันและบทบาทของตัวเอง</li>
-            <li>ถามตอบกันทีละคน ห้ามพูดสถานที่ตรง ๆ</li>
-            <li>Spy จะเห็นรายการตัวเลือกหลายสถานที่ โดยมีสถานที่จริงอยู่ในรายการ 1 แห่ง</li>
-            <li>Spy ต้องเดาสถานที่ ส่วนคนอื่นต้องจับ Spy ให้ได้</li>
-            <li>กดโหวตคนที่สงสัย แล้ว Host กดเฉลยเมื่อพร้อม</li>
-          </ol>
-          <div class="reveal-box hidden" id="revealBox"></div>
-        </div>
+      <section id="revealPanel" class="panel hidden">
+        <span class="eyebrow">ROUND RESULT</span>
+        <h2>เฉลยรอบนี้</h2>
+        <div id="revealContent"></div>
       </section>
     </section>
+
+    <div id="toast" class="toast hidden"></div>
   </main>
-  <div id="toast"></div>
+
   <script src="/socket.io/socket.io.js"></script>
-  <script src="app.js"></script>
+  <script src="/app.js"></script>
 </body>
 </html>

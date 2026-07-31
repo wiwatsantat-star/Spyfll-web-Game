@@ -1,124 +1,265 @@
 const socket = io();
-let state = null;
-let secret = null;
-let ticker = null;
-let allLocations = [];
-let selectedLocations = new Set();
-const $ = id => document.getElementById(id);
 
-fetch('/data/locations.json').then(r => r.json()).then(list => {
-  allLocations = list;
-  selectedLocations = new Set(list.map(x => x.name));
-  $('landingLocationCount').textContent = list.length;
-  $('landingRoleCount').textContent = list.reduce((n, x) => n + x.roles.length, 0);
-  renderLocationPicker();
-}).catch(() => toast('โหลดรายการสถานที่ไม่สำเร็จ'));
+const state = {
+  playerId: null,
+  room: null,
+  locations: [],
+  timerHandle: null,
+  secretVisible: true
+};
 
-function toast(msg){ const t=$('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2800); }
-function nameVal(){ return $('name').value.trim() || 'Player'; }
-function escapeHtml(x){ return String(x ?? '').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
-function selectedList(){ return [...selectedLocations]; }
+const $ = (id) => document.getElementById(id);
+const els = {
+  homeView: $('homeView'),
+  roomView: $('roomView'),
+  playerName: $('playerName'),
+  roomCodeInput: $('roomCodeInput'),
+  createRoomBtn: $('createRoomBtn'),
+  joinRoomBtn: $('joinRoomBtn'),
+  connectionStatus: $('connectionStatus'),
+  roomCodeText: $('roomCodeText'),
+  copyRoomBtn: $('copyRoomBtn'),
+  playerCount: $('playerCount'),
+  spyOptionStatus: $('spyOptionStatus'),
+  playersList: $('playersList'),
+  hostSettings: $('hostSettings'),
+  guestMessage: $('guestMessage'),
+  durationSelect: $('durationSelect'),
+  spyCountSelect: $('spyCountSelect'),
+  showSpyOptionsCheckbox: $('showSpyOptionsCheckbox'),
+  saveSettingsBtn: $('saveSettingsBtn'),
+  startRoundBtn: $('startRoundBtn'),
+  revealBtn: $('revealBtn'),
+  newRoundBtn: $('newRoundBtn'),
+  gamePanel: $('gamePanel'),
+  timerText: $('timerText'),
+  hideSecretBtn: $('hideSecretBtn'),
+  secretCard: $('secretCard'),
+  secretTitle: $('secretTitle'),
+  secretSubtitle: $('secretSubtitle'),
+  secretContent: $('secretContent'),
+  voteList: $('voteList'),
+  scoreboardList: $('scoreboardList'),
+  resetScoresBtn: $('resetScoresBtn'),
+  scoreboardHint: $('scoreboardHint'),
+  revealPanel: $('revealPanel'),
+  revealContent: $('revealContent'),
+  toast: $('toast')
+};
 
-$('createBtn').onclick = () => socket.emit('room:create', { name: nameVal() });
-$('joinBtn').onclick = () => socket.emit('room:join', { name: nameVal(), code: $('roomCode').value });
-$('startBtn').onclick = () => socket.emit('round:start', {
-  seconds: $('seconds').value,
-  spyCount: $('spyCount').value,
-  spyCandidateCount: $('candidateCount').value,
-  selectedLocations: selectedList()
-});
-$('endBtn').onclick = () => socket.emit('round:end');
-$('resetBtn').onclick = () => socket.emit('round:reset');
-$('saveSettingsBtn').onclick = () => socket.emit('room:settings', {
-  selectedLocations: selectedList(), spyCandidateCount: $('candidateCount').value
-});
-$('selectAllBtn').onclick = () => { selectedLocations = new Set(allLocations.map(x => x.name)); renderLocationPicker(); };
-$('clearAllBtn').onclick = () => { selectedLocations.clear(); renderLocationPicker(); };
-$('locationSearch').oninput = renderLocationPicker;
-$('copyCode').onclick = async () => { await navigator.clipboard?.writeText($('codeLabel').textContent); toast('คัดลอกรหัสห้องแล้ว'); };
-$('roomCode').addEventListener('keydown', e => { if(e.key === 'Enter') $('joinBtn').click(); });
-$('name').addEventListener('keydown', e => { if(e.key === 'Enter') $('createBtn').click(); });
-
-socket.on('error:message', toast);
-socket.on('settings:saved', ({ selectedLocationCount }) => toast(`บันทึกแล้ว ${selectedLocationCount} สถานที่`));
-socket.on('room:joined', ({ code }) => {
-  $('joinScreen').classList.add('hidden'); $('gameScreen').classList.remove('hidden');
-  $('codeLabel').textContent = code; history.replaceState(null, '', `#${code}`);
-});
-socket.on('room:update', room => { state = room; render(); });
-socket.on('round:secret', s => { secret = s; $('revealBox').classList.add('hidden'); renderSecret(); });
-socket.on('round:cleared', () => { secret = null; $('revealBox').classList.add('hidden'); resetSecretCard(); });
-socket.on('round:reveal', r => {
-  secret = null;
-  const roles = Object.values(r.assignedRoles || {}).filter(Boolean).slice(0, 10).join(', ');
-  $('revealBox').classList.remove('hidden');
-  $('revealBox').innerHTML = `<h3>เฉลยรอบนี้</h3><p><b>Spy:</b> ${r.spyNames.map(escapeHtml).join(', ')}</p><p><b>สถานที่:</b> ${escapeHtml(r.location)}</p><p><b>ตัวอย่างบทบาท:</b> ${escapeHtml(roles)}</p>`;
-  const c = $('secretCard'); c.className = 'secret-card revealed';
-  $('secretBadge').textContent = 'เฉลย'; $('roleText').textContent = 'จบรอบแล้ว';
-  $('secretText').innerHTML = `<b>Spy:</b> ${r.spyNames.map(escapeHtml).join(', ')}<br><b>สถานที่:</b> ${escapeHtml(r.location)}<br><b>จำนวนสถานที่:</b> ${r.locationCount} ที่`;
-});
-
-function render(){
-  if(!state) return;
-  const isHost = socket.id === state.hostId;
-  $('status').textContent = state.status === 'playing' ? 'Playing' : state.status === 'revealed' ? 'Revealed' : 'Lobby';
-  $('locationCount').textContent = state.locationCount || '-'; $('roleCount').textContent = state.roleCount || '-';
-  $('playerCount').textContent = `${state.players.length}/15`;
-  $('startBtn').disabled = state.status === 'playing' || !isHost;
-  $('endBtn').disabled = state.status !== 'playing' || !isHost;
-  $('resetBtn').disabled = state.status === 'playing' || !isHost;
-  ['seconds','spyCount','candidateCount','locationSearch','selectAllBtn','clearAllBtn','saveSettingsBtn'].forEach(id => $(id).disabled = !isHost || state.status === 'playing');
-  $('hostSettings').classList.toggle('host-disabled', !isHost);
-  if (state.spyCandidateCount) $('candidateCount').value = String(state.spyCandidateCount);
-  renderPlayers(); renderTimer(); renderLocationPicker();
-  if(!ticker) ticker = setInterval(renderTimer, 500);
+function showToast(message) {
+  els.toast.textContent = message;
+  els.toast.classList.remove('hidden');
+  setTimeout(() => els.toast.classList.add('hidden'), 2800);
 }
-function renderLocationPicker(){
-  if (!$('locationPicker')) return;
-  const q = ($('locationSearch').value || '').trim().toLowerCase();
-  const filtered = allLocations.filter(x => x.name.toLowerCase().includes(q));
-  $('selectedCount').textContent = selectedLocations.size;
-  $('locationPicker').innerHTML = filtered.map(x => `
-    <label class="location-option ${selectedLocations.has(x.name) ? 'picked' : ''}">
-      <input type="checkbox" value="${escapeHtml(x.name)}" ${selectedLocations.has(x.name) ? 'checked' : ''} />
-      <span><b>${escapeHtml(x.name)}</b><small>${x.roles.length} บทบาท</small></span>
-    </label>`).join('');
-  $('locationPicker').querySelectorAll('input').forEach(input => {
-    input.onchange = () => {
-      if (input.checked) selectedLocations.add(input.value); else selectedLocations.delete(input.value);
-      renderLocationPicker();
-    };
+
+function isHost() {
+  return state.room?.hostId === state.playerId;
+}
+
+function joinPayload() {
+  return { name: els.playerName.value.trim() || 'ผู้เล่น' };
+}
+
+
+function renderRoom() {
+  if (!state.room) return;
+  els.roomCodeText.textContent = state.room.code;
+  els.playerCount.textContent = state.room.players.length;
+  els.spyOptionStatus.textContent = state.room.settings.showSpyOptions ? 'เปิด' : 'ปิด';
+
+  els.playersList.innerHTML = '';
+  for (const player of state.room.players) {
+    const row = document.createElement('div');
+    row.className = 'player-row';
+    row.innerHTML = `<span>${player.name}</span><strong>${player.isHost ? 'HOST' : ''}</strong>`;
+    els.playersList.appendChild(row);
+  }
+
+  els.hostSettings.classList.toggle('hidden', !isHost());
+  els.guestMessage.classList.toggle('hidden', isHost());
+  els.startRoundBtn.classList.toggle('hidden', !isHost() || state.room.status === 'playing');
+  els.revealBtn.classList.toggle('hidden', !isHost() || state.room.status !== 'playing');
+  els.newRoundBtn.classList.toggle('hidden', !isHost() || state.room.status !== 'revealed');
+
+  if (isHost()) {
+    els.durationSelect.value = state.room.settings.durationSeconds;
+    els.spyCountSelect.value = state.room.settings.spyCount;
+    els.showSpyOptionsCheckbox.checked = state.room.settings.showSpyOptions;
+  }
+
+  renderVotes();
+  renderScoreboard();
+}
+
+
+function renderScoreboard() {
+  if (!state.room) return;
+
+  const sortedPlayers = [...state.room.players].sort((a, b) => {
+    if ((b.score || 0) !== (a.score || 0)) return (b.score || 0) - (a.score || 0);
+    return a.name.localeCompare(b.name, 'th');
   });
-}
-function renderPlayers(){
-  const wrap = $('players'); wrap.innerHTML = '';
-  state.players.forEach(p => {
-    const div = document.createElement('div'); div.className = 'player ' + (!p.connected ? 'off' : '');
-    div.innerHTML = `<div><b>${escapeHtml(p.name)}</b><small>${p.isHost ? 'Host · ' : ''}${p.connected ? 'online' : 'offline'} · votes ${p.votes}</small></div>`;
-    const actions = document.createElement('div'); actions.className = 'player-actions';
-    const vote = document.createElement('button'); vote.className = 'mini'; vote.textContent = 'โหวต'; vote.disabled = state.status !== 'playing' || p.id === socket.id; vote.onclick = () => socket.emit('vote', { targetId: p.id }); actions.appendChild(vote);
-    if(socket.id === state.hostId && !p.isHost){ const kick=document.createElement('button'); kick.className='mini danger'; kick.textContent='Kick'; kick.onclick=()=>socket.emit('room:kick',{playerId:p.id}); actions.appendChild(kick); }
-    div.appendChild(actions); wrap.appendChild(div);
+
+  els.scoreboardList.innerHTML = '';
+  sortedPlayers.forEach((player, index) => {
+    const row = document.createElement('div');
+    row.className = 'score-row';
+
+    const rank = document.createElement('div');
+    rank.className = 'score-rank';
+    rank.textContent = index + 1;
+
+    const identity = document.createElement('div');
+    identity.className = 'score-player';
+    identity.innerHTML = `<strong>${player.name}</strong>${player.isHost ? '<small>HOST</small>' : ''}`;
+
+    const score = document.createElement('div');
+    score.className = 'score-value';
+    score.textContent = player.score || 0;
+
+    row.appendChild(rank);
+    row.appendChild(identity);
+
+    if (isHost()) {
+      const controls = document.createElement('div');
+      controls.className = 'score-controls';
+
+      const minus = document.createElement('button');
+      minus.textContent = '−1';
+      minus.onclick = () => socket.emit('score:update', { playerId: player.id, delta: -1 });
+
+      const plus = document.createElement('button');
+      plus.textContent = '+1';
+      plus.onclick = () => socket.emit('score:update', { playerId: player.id, delta: 1 });
+
+      controls.appendChild(minus);
+      controls.appendChild(score);
+      controls.appendChild(plus);
+      row.appendChild(controls);
+    } else {
+      row.appendChild(score);
+    }
+
+    els.scoreboardList.appendChild(row);
   });
+
+  els.resetScoresBtn.classList.toggle('hidden', !isHost());
+  els.scoreboardHint.classList.toggle('hidden', !isHost());
 }
-function renderSecret(){
-  const c = $('secretCard'); if(!secret) return resetSecretCard();
-  c.className = 'secret-card ' + (secret.type === 'spy' ? 'spy' : 'civilian');
-  $('secretBadge').textContent = secret.type === 'spy' ? 'สายลับ' : 'ผู้เล่นทั่วไป'; $('roleText').textContent = secret.title;
-  if (secret.type === 'spy') {
-    const list = (secret.candidates || []).map((name, i) => `<span class="candidate-chip">${i + 1}. ${escapeHtml(name)}</span>`).join('');
-    $('secretText').innerHTML = `${escapeHtml(secret.hint)}<div class="candidate-list">${list}</div><b>คำเตือน:</b> รายการนี้มีสถานที่จริงเพียง 1 แห่ง`;
-  } else {
-    $('secretText').innerHTML = `<b>สถานที่:</b> ${escapeHtml(secret.location)}<br><b>บทบาท:</b> ${escapeHtml(secret.character)}<br><b>จำนวนสถานที่ในเกม:</b> ${secret.locationCount} ที่ · <b>บทบาททั้งหมด:</b> ${secret.roleCount}`;
+
+function renderVotes() {
+  if (!state.room) return;
+  els.voteList.innerHTML = '';
+  for (const player of state.room.players.filter((item) => item.id !== state.playerId)) {
+    const row = document.createElement('div');
+    row.className = 'vote-row';
+    const button = document.createElement('button');
+    button.textContent = 'โหวต';
+    button.onclick = () => socket.emit('round:vote', { targetId: player.id });
+    row.innerHTML = `<span>${player.name}</span>`;
+    row.appendChild(button);
+    els.voteList.appendChild(row);
   }
 }
-function resetSecretCard(){
-  const c = $('secretCard'); c.className = 'secret-card'; $('secretBadge').textContent = 'บทบาทของคุณ';
-  $('roleText').textContent = 'รอเริ่มเกม'; $('secretText').textContent = 'Host กดเริ่มเมื่อผู้เล่นพร้อม';
+
+function startTimer(endsAt) {
+  clearInterval(state.timerHandle);
+  const tick = () => {
+    const remaining = Math.max(0, Math.ceil((endsAt - Date.now()) / 1000));
+    const minutes = String(Math.floor(remaining / 60)).padStart(2, '0');
+    const seconds = String(remaining % 60).padStart(2, '0');
+    els.timerText.textContent = `${minutes}:${seconds}`;
+  };
+  tick();
+  state.timerHandle = setInterval(tick, 1000);
 }
-function renderTimer(){
-  if(!state || state.status !== 'playing' || !state.startedAt){ $('timer').textContent='--:--'; return; }
-  const left = Math.max(0, Math.ceil((state.startedAt + state.roundSeconds * 1000 - Date.now()) / 1000));
-  $('timer').textContent = `${String(Math.floor(left/60)).padStart(2,'0')}:${String(left%60).padStart(2,'0')}`;
-}
-const hash = location.hash.replace('#','').toUpperCase(); if(hash) $('roomCode').value = hash;
+
+els.createRoomBtn.onclick = () => socket.emit('room:create', joinPayload());
+els.joinRoomBtn.onclick = () => socket.emit('room:join', {
+  ...joinPayload(),
+  code: els.roomCodeInput.value.trim().toUpperCase()
+});
+els.copyRoomBtn.onclick = async () => {
+  await navigator.clipboard.writeText(state.room?.code || '');
+  showToast('คัดลอกรหัสห้องแล้ว');
+};
+els.saveSettingsBtn.onclick = () => {
+  socket.emit('room:updateSettings', {
+    durationSeconds: Number(els.durationSelect.value),
+    spyCount: Number(els.spyCountSelect.value),
+    showSpyOptions: els.showSpyOptionsCheckbox.checked
+  });
+};
+els.startRoundBtn.onclick = () => socket.emit('round:start');
+els.revealBtn.onclick = () => socket.emit('round:reveal');
+els.newRoundBtn.onclick = () => socket.emit('round:new');
+els.resetScoresBtn.onclick = () => {
+  if (confirm('ต้องการรีเซ็ตคะแนนผู้เล่นทุกคนหรือไม่?')) {
+    socket.emit('score:reset');
+  }
+};
+els.hideSecretBtn.onclick = () => {
+  state.secretVisible = !state.secretVisible;
+  els.secretContent.classList.toggle('hidden', !state.secretVisible);
+  els.secretSubtitle.classList.toggle('hidden', !state.secretVisible);
+};
+
+socket.on('connect', () => {
+  els.connectionStatus.textContent = 'ออนไลน์';
+  socket.emit('locations:list');
+});
+socket.on('disconnect', () => {
+  els.connectionStatus.textContent = 'ออฟไลน์';
+});
+socket.on('locations:data', (locations) => {
+  state.locations = locations;
+});
+socket.on('room:joined', ({ code, playerId }) => {
+  state.playerId = playerId;
+  els.homeView.classList.add('hidden');
+  els.roomView.classList.remove('hidden');
+  els.roomCodeText.textContent = code;
+});
+socket.on('room:state', (room) => {
+  state.room = room;
+  renderRoom();
+});
+socket.on('round:started', ({ endsAt }) => {
+  els.gamePanel.classList.remove('hidden');
+  els.revealPanel.classList.add('hidden');
+  startTimer(endsAt);
+});
+socket.on('round:secret', (payload) => {
+  els.secretCard.className = `secret-card ${payload.type === 'spy' ? 'spy' : ''}`;
+  if (payload.type === 'spy') {
+    els.secretTitle.textContent = 'คุณคือ SPY 🕵️';
+    if (payload.candidates.length > 0) {
+      els.secretSubtitle.textContent = 'สถานที่จริงซ่อนอยู่ในรายการนี้ 1 แห่ง';
+      els.secretContent.innerHTML = `<div class="candidate-grid">${payload.candidates.map((item) =>
+        `<div class="candidate"><strong>${item.name}</strong><br><small>${item.category}</small></div>`
+      ).join('')}</div>`;
+    } else {
+      els.secretSubtitle.textContent = 'รอบนี้ไม่มีรายการช่วยเดา';
+      els.secretContent.innerHTML = '<p>สังเกตคำถามและคำตอบของผู้เล่นคนอื่นให้ดี</p>';
+    }
+  } else {
+    els.secretTitle.textContent = payload.location;
+    els.secretSubtitle.textContent = 'บทบาทของคุณ';
+    els.secretContent.innerHTML = `<h2>${payload.role}</h2>`;
+  }
+});
+socket.on('round:revealed', (payload) => {
+  clearInterval(state.timerHandle);
+  els.revealPanel.classList.remove('hidden');
+  els.revealContent.innerHTML = `
+    <p><strong>สถานที่จริง:</strong> ${payload.location}</p>
+    <p><strong>Spy:</strong> ${payload.spies.map((item) => item.name).join(', ')}</p>
+  `;
+});
+socket.on('round:cleared', () => {
+  clearInterval(state.timerHandle);
+  els.gamePanel.classList.add('hidden');
+  els.revealPanel.classList.add('hidden');
+});
+socket.on('app:error', showToast);
