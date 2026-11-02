@@ -116,7 +116,7 @@ io.on('connection', (socket) => {
     socket.emit('locations:data', locations.map(({ roles, ...location }) => location));
   });
 
-  socket.on('room:create', ({ name } = {}) => {
+  socket.on('room:create', ({ name } = {}, acknowledge) => {
     const code = createCode();
     const room = {
       code,
@@ -145,14 +145,25 @@ io.on('connection', (socket) => {
     socket.data.roomCode = code;
     socket.emit('room:joined', { code, playerId: socket.id });
     emitRoom(room);
+    if (typeof acknowledge === 'function') acknowledge({ ok: true, code });
   });
 
-  socket.on('room:join', ({ name, code } = {}) => {
+  socket.on('room:join', ({ name, code } = {}, acknowledge) => {
     const normalizedCode = String(code || '').trim().toUpperCase();
     const room = rooms.get(normalizedCode);
 
-    if (!room) return socket.emit('app:error', 'ไม่พบห้องนี้');
-    if (room.players.size >= 15) return socket.emit('app:error', 'ห้องเต็มแล้ว');
+    if (!room) {
+      const message = 'ไม่พบห้องนี้';
+      socket.emit('app:error', message);
+      if (typeof acknowledge === 'function') acknowledge({ ok: false, message });
+      return;
+    }
+    if (room.players.size >= 15) {
+      const message = 'ห้องเต็มแล้ว';
+      socket.emit('app:error', message);
+      if (typeof acknowledge === 'function') acknowledge({ ok: false, message });
+      return;
+    }
 
     room.players.set(socket.id, {
       id: socket.id,
@@ -165,6 +176,7 @@ io.on('connection', (socket) => {
     socket.data.roomCode = room.code;
     socket.emit('room:joined', { code: room.code, playerId: socket.id });
     emitRoom(room);
+    if (typeof acknowledge === 'function') acknowledge({ ok: true, code: room.code });
   });
 
   socket.on('room:updateSettings', (payload = {}) => {

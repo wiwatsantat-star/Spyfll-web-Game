@@ -5,7 +5,10 @@ const state = {
   room: null,
   locations: [],
   timerHandle: null,
-  secretVisible: true
+  secretVisible: true,
+  roomEntryPending: false,
+  roomEntryAction: null,
+  roomEntryRequestId: 0
 };
 
 const $ = (id) => document.getElementById(id);
@@ -60,6 +63,44 @@ function isHost() {
 function joinPayload() {
   return { name: els.playerName.value.trim() || 'ผู้เล่น' };
 }
+
+function updateRoomEntryButtons() {
+  const canEnter = socket.connected && !state.roomEntryPending;
+  els.createRoomBtn.disabled = !canEnter;
+  els.joinRoomBtn.disabled = !canEnter;
+  els.createRoomBtn.textContent =
+    state.roomEntryPending && state.roomEntryAction === 'room:create' ? 'กำลังสร้างห้อง...' : 'สร้างห้อง';
+  els.joinRoomBtn.textContent =
+    state.roomEntryPending && state.roomEntryAction === 'room:join' ? 'กำลังเข้าห้อง...' : 'เข้าห้อง';
+}
+
+function enterRoom(eventName, payload) {
+  if (state.roomEntryPending) return;
+  if (!socket.connected) {
+    showToast('กำลังเชื่อมต่อ กรุณารอสักครู่แล้วลองอีกครั้ง');
+    return;
+  }
+
+  state.roomEntryRequestId += 1;
+  const requestId = state.roomEntryRequestId;
+  state.roomEntryPending = true;
+  state.roomEntryAction = eventName;
+  updateRoomEntryButtons();
+
+  socket.timeout(12000).emit(eventName, payload, (error, result) => {
+    if (requestId !== state.roomEntryRequestId) return;
+    state.roomEntryPending = false;
+    state.roomEntryAction = null;
+    updateRoomEntryButtons();
+    if (error) {
+      showToast('เซิร์ฟเวอร์ไม่ตอบกลับ กรุณาลองเข้า Session อีกครั้ง');
+      return;
+    }
+    if (result?.ok === false) return;
+  });
+}
+
+updateRoomEntryButtons();
 
 
 function renderRoom() {
@@ -175,11 +216,15 @@ function startTimer(endsAt) {
   state.timerHandle = setInterval(tick, 1000);
 }
 
-els.createRoomBtn.onclick = () => socket.emit('room:create', joinPayload());
-els.joinRoomBtn.onclick = () => socket.emit('room:join', {
-  ...joinPayload(),
-  code: els.roomCodeInput.value.trim().toUpperCase()
-});
+els.createRoomBtn.onclick = () => enterRoom('room:create', joinPayload());
+els.joinRoomBtn.onclick = () => {
+  const code = els.roomCodeInput.value.trim().toUpperCase();
+  if (!code) {
+    showToast('กรอกรหัสห้องก่อน');
+    return;
+  }
+  enterRoom('room:join', { ...joinPayload(), code });
+};
 els.copyRoomBtn.onclick = async () => {
   await navigator.clipboard.writeText(state.room?.code || '');
   showToast('คัดลอกรหัสห้องแล้ว');
@@ -207,15 +252,30 @@ els.hideSecretBtn.onclick = () => {
 
 socket.on('connect', () => {
   els.connectionStatus.textContent = 'ออนไลน์';
+  updateRoomEntryButtons();
   socket.emit('locations:list');
+});
+socket.on('connect_error', () => {
+  els.connectionStatus.textContent = 'กำลังเชื่อมต่อ...';
+  updateRoomEntryButtons();
 });
 socket.on('disconnect', () => {
   els.connectionStatus.textContent = 'ออฟไลน์';
+  const wasEnteringRoom = state.roomEntryPending;
+  state.roomEntryRequestId += 1;
+  state.roomEntryPending = false;
+  state.roomEntryAction = null;
+  updateRoomEntryButtons();
+  if (wasEnteringRoom) showToast('การเชื่อมต่อขาด กรุณาลองเข้า Session อีกครั้ง');
 });
 socket.on('locations:data', (locations) => {
   state.locations = locations;
 });
 socket.on('room:joined', ({ code, playerId }) => {
+  state.roomEntryRequestId += 1;
+  state.roomEntryPending = false;
+  state.roomEntryAction = null;
+  updateRoomEntryButtons();
   state.playerId = playerId;
   els.homeView.classList.add('hidden');
   els.roomView.classList.remove('hidden');
@@ -262,4 +322,12 @@ socket.on('round:cleared', () => {
   els.gamePanel.classList.add('hidden');
   els.revealPanel.classList.add('hidden');
 });
-socket.on('app:error', showToast);
+socket.on('app:error', (message) => {
+  if (state.roomEntryPending) {
+    state.roomEntryRequestId += 1;
+    state.roomEntryPending = false;
+    state.roomEntryAction = null;
+    updateRoomEntryButtons();
+  }
+  showToast(message);
+});
