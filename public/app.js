@@ -250,17 +250,23 @@ els.hideSecretBtn.onclick = () => {
   els.secretSubtitle.classList.toggle('hidden', !state.secretVisible);
 };
 
+function setConnectionStatus(message, statusClass) {
+  els.connectionStatus.textContent = message;
+  els.connectionStatus.classList.remove('is-online', 'is-connecting', 'is-offline');
+  els.connectionStatus.classList.add(statusClass);
+}
+
 socket.on('connect', () => {
-  els.connectionStatus.textContent = 'ออนไลน์';
+  setConnectionStatus('ออนไลน์', 'is-online');
   updateRoomEntryButtons();
   socket.emit('locations:list');
 });
 socket.on('connect_error', () => {
-  els.connectionStatus.textContent = 'กำลังเชื่อมต่อ...';
+  setConnectionStatus('กำลังเชื่อมต่อ...', 'is-connecting');
   updateRoomEntryButtons();
 });
 socket.on('disconnect', () => {
-  els.connectionStatus.textContent = 'ออฟไลน์';
+  setConnectionStatus('ออฟไลน์', 'is-offline');
   const wasEnteringRoom = state.roomEntryPending;
   state.roomEntryRequestId += 1;
   state.roomEntryPending = false;
