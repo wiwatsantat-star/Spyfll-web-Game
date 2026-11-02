@@ -357,6 +357,7 @@ const charadesBank = ['ช้าง','มะพร้าว','รถตุ๊ก
 function openGameHub() {
   clearInterval(miniState.timer);
   miniState.timer = null;
+  if (typeof insiderState !== 'undefined') clearInterval(insiderState.timer);
   $('miniGameView').classList.add('hidden');
   $('homeView').classList.add('hidden');
   $('roomView').classList.add('hidden');
@@ -370,8 +371,10 @@ function openMiniGame(kind) {
   $('miniGameView').classList.remove('hidden');
   $('charadesGame').classList.toggle('hidden', kind !== 'charades');
   $('quizGame').classList.toggle('hidden', kind !== 'quiz');
+  $('insiderGame').classList.toggle('hidden', kind !== 'insider');
   if (kind === 'charades') resetCharades();
   if (kind === 'quiz') resetQuiz();
+  if (kind === 'insider') resetInsider();
 }
 function resetCharades() {
   clearInterval(miniState.timer);
@@ -509,3 +512,183 @@ $('quizNextBtn').addEventListener('click', () => {
     showQuizQuestion();
   }
 });
+
+
+// Insider: local pass-and-play secret-role party game
+const insiderWords = ['ตลาดน้ำ','รถไฟฟ้า','โรงพยาบาล','ร้านกาแฟ','สนามบิน','สวนสัตว์','ห้องสมุด','สถานีตำรวจ','โรงภาพยนตร์','ร้านสะดวกซื้อ','ชายหาด','พิพิธภัณฑ์','สถานีรถไฟ','สวนสนุก','ร้านอาหาร','โรงเรียน','ตลาดกลางคืน','คอนเสิร์ต','สนามฟุตบอล','วัดไทย','ปั๊มน้ำมัน','ร้านตัดผม','ฟาร์ม','โรงแรม','ร้านขายยา','ท่าเรือ','งานวัด','ค่ายลูกเสือ','ภูเขา','พิพิธภัณฑ์สัตว์น้ำ','ร้านซักรีด','สำนักงาน','คาเฟ่แมว','ร้านหนังสือ','สถานีขนส่ง','ตลาดสด','ร้านขนม','ลานสเกต','ศูนย์การค้า','คลินิก'];
+const insiderState = { players: [], masterIndex: -1, insiderIndex: -1, word: '', dealIndex: 0, voterIndex: 0, votes: [], timer: null, seconds: 300, secretTimeout: null };
+function setInsiderPhase(phase) {
+  ['insiderSetup','insiderDeal','insiderDiscussion','insiderVoting','insiderResults'].forEach((id) => {
+    $(id).classList.toggle('hidden', id !== phase);
+  });
+}
+function resetInsider() {
+  clearInterval(insiderState.timer);
+  clearTimeout(insiderState.secretTimeout);
+  insiderState.timer = null;
+  insiderState.secretTimeout = null;
+  insiderState.seconds = 300;
+  $('insiderPlayerCount').value = '6';
+  $('insiderSecretWord').textContent = '••••••••';
+  $('insiderSecretToggle').textContent = 'แสดงคำลับ';
+  $('insiderTimer').textContent = '05:00';
+  $('insiderTimerStartBtn').disabled = false;
+  $('insiderTimerStartBtn').textContent = 'เริ่มจับเวลา';
+  $('insiderBeginVoteBtn').disabled = false;
+  setInsiderPhase('insiderSetup');
+}
+function startInsider() {
+  const count = Math.max(4, Math.min(12, Number($('insiderPlayerCount').value) || 6));
+  $('insiderPlayerCount').value = String(count);
+  insiderState.players = Array.from({ length: count }, (_, index) => 'ผู้เล่น ' + (index + 1));
+  insiderState.masterIndex = Math.floor(Math.random() * count);
+  do { insiderState.insiderIndex = Math.floor(Math.random() * count); }
+  while (insiderState.insiderIndex === insiderState.masterIndex);
+  insiderState.word = insiderWords[Math.floor(Math.random() * insiderWords.length)];
+  insiderState.dealIndex = 0;
+  showInsiderDeal();
+}
+function showInsiderDeal() {
+  setInsiderPhase('insiderDeal');
+  $('insiderDealCount').textContent = (insiderState.dealIndex + 1) + ' / ' + insiderState.players.length;
+  $('insiderDealPrompt').textContent = 'ส่งอุปกรณ์ให้' + insiderState.players[insiderState.dealIndex] + ' แล้วแตะเพื่อดูบทบาทเป็นการส่วนตัว';
+  $('insiderRoleCard').classList.add('hidden');
+  $('insiderRevealRoleBtn').classList.remove('hidden');
+  $('insiderNextPlayerBtn').classList.add('hidden');
+}
+function revealInsiderRole() {
+  const i = insiderState.dealIndex;
+  const card = $('insiderRoleCard');
+  card.classList.remove('hidden');
+  $('insiderRevealRoleBtn').classList.add('hidden');
+  $('insiderNextPlayerBtn').classList.remove('hidden');
+  if (i === insiderState.masterIndex) {
+    $('insiderRoleBadge').textContent = 'MASTER';
+    $('insiderRoleTitle').textContent = 'คุณคือ Master';
+    $('insiderRoleText').textContent = 'คำลับคือ “' + insiderState.word + '” ดูแลเวลาและร่วมวงพูดคุย แต่อย่าเฉลยคำให้คนอื่น';
+  } else if (i === insiderState.insiderIndex) {
+    $('insiderRoleBadge').textContent = 'INSIDER';
+    $('insiderRoleTitle').textContent = 'คุณคือ Insider';
+    $('insiderRoleText').textContent = 'คำลับคือ “' + insiderState.word + '” ช่วยให้วงเดาถูกโดยไม่ให้ใครจับได้ว่าคุณรู้คำตอบ';
+  } else {
+    $('insiderRoleBadge').textContent = 'TEAM';
+    $('insiderRoleTitle').textContent = 'คุณเป็นผู้เล่นทั่วไป';
+    $('insiderRoleText').textContent = 'คุณยังไม่รู้คำลับ คุยและถามคำถามเพื่อช่วยกันเดา พร้อมสังเกตว่าใครรู้คำตอบอยู่ก่อน';
+  }
+  $('insiderNextPlayerBtn').textContent = i === insiderState.players.length - 1 ? 'เริ่มช่วงพูดคุย' : 'ซ่อนบัตรและส่งต่อ';
+}
+function nextInsiderPlayer() {
+  if (insiderState.dealIndex >= insiderState.players.length - 1) {
+    beginInsiderDiscussion();
+  } else {
+    insiderState.dealIndex += 1;
+    showInsiderDeal();
+  }
+}
+function beginInsiderDiscussion() {
+  setInsiderPhase('insiderDiscussion');
+  insiderState.seconds = 300;
+  $('insiderTimer').textContent = '05:00';
+  $('insiderSecretWord').textContent = '••••••••';
+  $('insiderSecretToggle').textContent = 'แสดงคำลับ';
+  $('insiderTimerStartBtn').disabled = false;
+  $('insiderTimerStartBtn').textContent = 'เริ่มจับเวลา';
+}
+function startInsiderTimer() {
+  if (insiderState.timer) return;
+  $('insiderTimerStartBtn').disabled = true;
+  $('insiderTimerStartBtn').textContent = 'กำลังจับเวลา';
+  insiderState.timer = setInterval(() => {
+    insiderState.seconds -= 1;
+    const mm = String(Math.floor(insiderState.seconds / 60)).padStart(2, '0');
+    const ss = String(insiderState.seconds % 60).padStart(2, '0');
+    $('insiderTimer').textContent = mm + ':' + ss;
+    if (insiderState.seconds <= 0) {
+      clearInterval(insiderState.timer);
+      insiderState.timer = null;
+      beginInsiderVoting();
+    }
+  }, 1000);
+}
+function toggleInsiderSecret() {
+  clearTimeout(insiderState.secretTimeout);
+  const visible = $('insiderSecretWord').textContent !== '••••••••';
+  $('insiderSecretWord').textContent = visible ? '••••••••' : insiderState.word;
+  $('insiderSecretToggle').textContent = visible ? 'แสดงคำลับ' : 'ซ่อนคำลับ';
+  if (!visible) {
+    insiderState.secretTimeout = setTimeout(() => {
+      $('insiderSecretWord').textContent = '••••••••';
+      $('insiderSecretToggle').textContent = 'แสดงคำลับ';
+    }, 8000);
+  }
+}
+function beginInsiderVoting() {
+  clearInterval(insiderState.timer);
+  insiderState.timer = null;
+  clearTimeout(insiderState.secretTimeout);
+  $('insiderSecretWord').textContent = '••••••••';
+  $('insiderSecretToggle').textContent = 'แสดงคำลับ';
+  insiderState.voterIndex = 0;
+  insiderState.votes = Array(insiderState.players.length).fill(-1);
+  setInsiderPhase('insiderVoting');
+  renderInsiderVote();
+}
+function renderInsiderVote() {
+  const voter = insiderState.voterIndex;
+  $('insiderVoteCount').textContent = (voter + 1) + ' / ' + insiderState.players.length;
+  $('insiderVotePrompt').textContent = 'ส่งอุปกรณ์ให้' + insiderState.players[voter] + ' เลือกผู้เล่นที่คิดว่าเป็น Insider';
+  $('insiderVoteChoices').innerHTML = '';
+  $('insiderVoteChoices').classList.remove('hidden');
+  $('insiderVoteHandoff').classList.add('hidden');
+  insiderState.players.forEach((name, index) => {
+    if (index === insiderState.masterIndex || index === voter) return;
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.textContent = name;
+    button.addEventListener('click', () => {
+      insiderState.votes[voter] = index;
+      $('insiderVoteChoices').classList.add('hidden');
+      $('insiderVoteHandoff').classList.remove('hidden');
+      $('insiderVoteNextBtn').textContent = voter === insiderState.players.length - 1 ? 'ดูผลโหวต' : 'ส่งให้คนถัดไป';
+    });
+    $('insiderVoteChoices').appendChild(button);
+  });
+}
+function nextInsiderVote() {
+  if (insiderState.voterIndex >= insiderState.players.length - 1) {
+    showInsiderResults();
+  } else {
+    insiderState.voterIndex += 1;
+    renderInsiderVote();
+  }
+}
+function showInsiderResults() {
+  setInsiderPhase('insiderResults');
+  const tally = Array(insiderState.players.length).fill(0);
+  insiderState.votes.forEach((target) => { if (target >= 0) tally[target] += 1; });
+  const maxVotes = Math.max(...tally);
+  const leaders = tally.map((count, index) => count === maxVotes ? index : -1).filter((index) => index >= 0);
+  const caught = leaders.includes(insiderState.insiderIndex);
+  $('insiderOutcome').textContent = caught ? 'จับ Insider ได้!' : 'Insider หลบหนีไปได้';
+  $('insiderRevealSummary').textContent = 'Insider คือ ' + insiderState.players[insiderState.insiderIndex] + ' • Master คือ ' + insiderState.players[insiderState.masterIndex] + ' • คำลับคือ “' + insiderState.word + '”';
+  $('insiderTally').innerHTML = '';
+  insiderState.players.forEach((name, index) => {
+    if (index === insiderState.masterIndex) return;
+    const row = document.createElement('div');
+    row.className = 'insider-tally-row';
+    const identity = document.createElement('span');
+    identity.textContent = name + (index === insiderState.insiderIndex ? ' • INSIDER' : '');
+    const count = document.createElement('strong');
+    count.textContent = String(tally[index]) + ' โหวต';
+    row.append(identity, count);
+    $('insiderTally').appendChild(row);
+  });
+}
+$('insiderStartBtn').addEventListener('click', startInsider);
+$('insiderRevealRoleBtn').addEventListener('click', revealInsiderRole);
+$('insiderNextPlayerBtn').addEventListener('click', nextInsiderPlayer);
+$('insiderTimerStartBtn').addEventListener('click', startInsiderTimer);
+$('insiderBeginVoteBtn').addEventListener('click', beginInsiderVoting);
+$('insiderSecretToggle').addEventListener('click', toggleInsiderSecret);
+$('insiderVoteNextBtn').addEventListener('click', nextInsiderVote);
+$('insiderReplayBtn').addEventListener('click', resetInsider);
