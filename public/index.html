@@ -9,25 +9,47 @@
 <body>
   <main class="app-shell">
     <header class="hero">
-      <div>
-        <span class="eyebrow">MULTIPLAYER PARTY GAME</span>
-        <h1>Spyfall Thailand</h1>
-        <p>เกมค้นหา Spy พร้อมสถานที่จริงในประเทศไทย</p>
+      <div class="brand-lockup">
+        <div class="brand-seal" aria-hidden="true"><span>SF</span><small>300</small></div>
+        <div class="hero-copy">
+          <span class="eyebrow"><span class="eyebrow-mark"></span>MULTIPLAYER PARTY GAME</span>
+          <h1>Spyfall <span>Thailand</span></h1>
+          <p>ภารกิจลับในสถานที่จริงทั่วประเทศไทย</p>
+        </div>
       </div>
-      <div class="status-pill" id="connectionStatus">กำลังเชื่อมต่อ...</div>
+      <div class="status-pill is-connecting" id="connectionStatus" role="status" aria-live="polite">กำลังเชื่อมต่อ...</div>
     </header>
 
-    <section id="homeView" class="panel">
-      <h2>เริ่มเกม</h2>
-      <label>ชื่อผู้เล่น<input id="playerName" maxlength="20" placeholder="กรอกชื่อ"></label>
-      <div class="grid two">
+    <section id="homeView" class="panel home-panel">
+      <div class="home-heading">
+        <div>
+          <span class="eyebrow">CLASSIFIED BRIEFING</span>
+          <h2>เริ่มภารกิจ</h2>
+          <p>สร้างห้องใหม่ หรือใส่รหัสเพื่อเข้าร่วมทีม</p>
+        </div>
+        <div class="mission-badge" role="img" aria-label="300 สถานที่ในเกม">
+          <strong>300</strong>
+          <span>LOCATIONS</span>
+        </div>
+      </div>
+
+      <label class="name-field">ชื่อผู้เล่น
+        <input id="playerName" maxlength="20" autocomplete="nickname" placeholder="กรอกชื่อของคุณ">
+      </label>
+
+      <div class="entry-grid">
         <button id="createRoomBtn" class="primary">สร้างห้อง</button>
+        <div class="entry-or" aria-hidden="true"><span>หรือ</span></div>
         <div class="join-box">
-          <input id="roomCodeInput" maxlength="5" placeholder="รหัสห้อง">
+          <input id="roomCodeInput" maxlength="5" inputmode="text" autocapitalize="characters" autocomplete="off" aria-label="รหัสห้อง" placeholder="ใส่รหัสห้อง">
           <button id="joinRoomBtn">เข้าห้อง</button>
         </div>
       </div>
-      <p class="muted">รองรับผู้เล่น 2–15 คน</p>
+
+      <div class="home-footnote">
+        <span class="footnote-spark" aria-hidden="true"></span>
+        <p class="muted">รองรับผู้เล่น 2–15 คน <span>•</span> แชร์รหัสห้องแล้วเริ่มสืบสวน</p>
+      </div>
     </section>
 
     <section id="roomView" class="hidden">
@@ -112,7 +134,7 @@
         <p id="scoreboardHint" class="muted hidden">Host สามารถเพิ่มหรือลดคะแนนให้ผู้เล่นได้</p>
       </section>
 
-      <section id="gamePanel" class="panel hidden">
+      <section id="gamePanel" class="panel game-panel hidden">
         <div class="game-top">
           <div>
             <span class="eyebrow">ROUND IN PROGRESS</span>
@@ -131,7 +153,7 @@
         <div id="voteList" class="vote-list"></div>
       </section>
 
-      <section id="revealPanel" class="panel hidden">
+      <section id="revealPanel" class="panel reveal-panel hidden">
         <span class="eyebrow">ROUND RESULT</span>
         <h2>เฉลยรอบนี้</h2>
         <div id="revealContent"></div>
