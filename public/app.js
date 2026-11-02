@@ -337,3 +337,175 @@ socket.on('app:error', (message) => {
   }
   showToast(message);
 });
+
+
+// Local games available from the game hub
+const miniState = { kind: null, timer: null, seconds: 60, score: 0, words: [], wordIndex: 0, quizIndex: -1, quizScore: 0, quizAnswered: false };
+const quizBank = [
+  { q: 'ประเทศไทยมีกี่จังหวัด (นับกรุงเทพฯ ด้วย)?', options: ['75 จังหวัด', '76 จังหวัด', '77 จังหวัด', '78 จังหวัด'], answer: 2 },
+  { q: 'ดาวเคราะห์ดวงใดมีขนาดใหญ่ที่สุดในระบบสุริยะ?', options: ['โลก', 'ดาวพฤหัสบดี', 'ดาวอังคาร', 'ดาวศุกร์'], answer: 1 },
+  { q: 'น้ำ 1 กิโลกรัม เท่ากับกี่กรัม?', options: ['100 กรัม', '500 กรัม', '1,000 กรัม', '10,000 กรัม'], answer: 2 },
+  { q: 'ทะเลทรายซาฮาราอยู่ในทวีปใด?', options: ['เอเชีย', 'อเมริกาใต้', 'ยุโรป', 'แอฟริกา'], answer: 3 },
+  { q: 'ผสมสีน้ำเงินกับสีเหลืองจะได้สีอะไร?', options: ['สีเขียว', 'สีม่วง', 'สีส้ม', 'สีชมพู'], answer: 0 },
+  { q: 'สัตว์เลี้ยงลูกด้วยนมชนิดใดบินได้จริง?', options: ['กระรอกบิน', 'ค้างคาว', 'นกเพนกวิน', 'ไก่'], answer: 1 },
+  { q: 'น้ำบริสุทธิ์เดือดที่อุณหภูมิประมาณเท่าไรที่ระดับน้ำทะเล?', options: ['50°C', '80°C', '100°C', '120°C'], answer: 2 },
+  { q: 'เมืองหลวงของประเทศญี่ปุ่นคือเมืองใด?', options: ['โอซาก้า', 'เกียวโต', 'โตเกียว', 'นาโกยา'], answer: 2 },
+  { q: 'รูปสามเหลี่ยมมีด้านกี่ด้าน?', options: ['2 ด้าน', '3 ด้าน', '4 ด้าน', '5 ด้าน'], answer: 1 },
+  { q: 'หนึ่งวันมีกี่ชั่วโมง?', options: ['12 ชั่วโมง', '18 ชั่วโมง', '24 ชั่วโมง', '30 ชั่วโมง'], answer: 2 }
+];
+const charadesBank = ['ช้าง','มะพร้าว','รถตุ๊กตุ๊ก','ช่างภาพ','นักบิน','ปลาหมึก','รถไฟเหาะ','ทำอาหาร','เล่นฟุตบอล','แปรงฟัน','ไดโนเสาร์','พระจันทร์','ชาวประมง','เต้นรำ','ยุง','หุ่นยนต์','ตลาดน้ำ','นักมายากล','กางร่ม','ลิง','ขี่จักรยาน','หมูกระทะ','นักดับเพลิง','นาฬิกาปลุก','ตกปลา','ยกน้ำหนัก','รถติด','แมว','พัดลม','ร้องเพลง','สับปะรด','นักสำรวจ','เล่นว่าว','เครื่องบิน','ปลูกต้นไม้','ง่วงนอน','ถ่ายรูปเซลฟี่','มวยไทย','ไอศกรีม','เต่า'];
+function openGameHub() {
+  clearInterval(miniState.timer);
+  miniState.timer = null;
+  $('miniGameView').classList.add('hidden');
+  $('homeView').classList.add('hidden');
+  $('roomView').classList.add('hidden');
+  $('gameHub').classList.remove('hidden');
+}
+function openMiniGame(kind) {
+  miniState.kind = kind;
+  $('gameHub').classList.add('hidden');
+  $('homeView').classList.add('hidden');
+  $('roomView').classList.add('hidden');
+  $('miniGameView').classList.remove('hidden');
+  $('charadesGame').classList.toggle('hidden', kind !== 'charades');
+  $('quizGame').classList.toggle('hidden', kind !== 'quiz');
+  if (kind === 'charades') resetCharades();
+  if (kind === 'quiz') resetQuiz();
+}
+function resetCharades() {
+  clearInterval(miniState.timer);
+  miniState.timer = null;
+  miniState.seconds = 60;
+  miniState.score = 0;
+  miniState.words = [...charadesBank].sort(() => Math.random() - 0.5);
+  miniState.wordIndex = 0;
+  $('charadesScore').textContent = '0';
+  $('charadesStatus').textContent = 'พร้อมเริ่มหรือยัง?';
+  $('charadesWord').textContent = 'กดเริ่มเกมเพื่อสุ่มคำ';
+  $('charadesTimer').textContent = '01:00';
+  $('charadesStartBtn').disabled = false;
+  $('charadesStartBtn').textContent = 'เริ่มจับเวลา';
+  $('charadesGotBtn').disabled = true;
+  $('charadesSkipBtn').disabled = true;
+}
+function nextCharadesWord() {
+  if (miniState.wordIndex >= miniState.words.length) {
+    miniState.words = [...charadesBank].sort(() => Math.random() - 0.5);
+    miniState.wordIndex = 0;
+  }
+  $('charadesWord').textContent = miniState.words[miniState.wordIndex++];
+}
+function startCharades() {
+  if (miniState.timer) return;
+  miniState.seconds = 60;
+  miniState.score = 0;
+  miniState.wordIndex = 0;
+  $('charadesScore').textContent = '0';
+  $('charadesStatus').textContent = 'ใบ้ให้เพื่อนทาย!';
+  $('charadesStartBtn').disabled = true;
+  $('charadesStartBtn').textContent = 'กำลังเล่น';
+  $('charadesGotBtn').disabled = false;
+  $('charadesSkipBtn').disabled = false;
+  nextCharadesWord();
+  miniState.timer = setInterval(() => {
+    miniState.seconds -= 1;
+    $('charadesTimer').textContent = '00:' + String(miniState.seconds).padStart(2, '0');
+    if (miniState.seconds <= 0) {
+      clearInterval(miniState.timer);
+      miniState.timer = null;
+      $('charadesStatus').textContent = 'หมดเวลา! ได้ ' + miniState.score + ' คะแนน';
+      $('charadesGotBtn').disabled = true;
+      $('charadesSkipBtn').disabled = true;
+      $('charadesStartBtn').disabled = false;
+      $('charadesStartBtn').textContent = 'เล่นอีกครั้ง';
+    }
+  }, 1000);
+}
+function resetQuiz() {
+  miniState.quizIndex = -1;
+  miniState.quizScore = 0;
+  miniState.quizAnswered = false;
+  $('quizProgress').textContent = 'ข้อ 1 / ' + quizBank.length;
+  $('quizScore').textContent = '0';
+  $('quizQuestion').textContent = 'พร้อมประลองความรู้รอบตัวหรือยัง?';
+  $('quizOptions').innerHTML = '';
+  $('quizFeedback').textContent = 'ตอบถูกเพื่อเก็บคะแนน เล่นได้ทีละคนหรือผลัดกันตอบ';
+  $('quizNextBtn').textContent = 'เริ่มควิซ';
+}
+function showQuizQuestion() {
+  if (miniState.quizIndex >= quizBank.length) {
+    $('quizProgress').textContent = 'ครบทุกข้อแล้ว';
+    $('quizQuestion').textContent = 'จบเกม! คุณได้ ' + miniState.quizScore + ' จาก ' + quizBank.length + ' คะแนน';
+    $('quizOptions').innerHTML = '';
+    $('quizFeedback').textContent = miniState.quizScore >= 8 ? 'ยอดเยี่ยม รอบรู้สุด ๆ!' : 'ลองอีกครั้งเพื่อทำคะแนนให้ดีกว่าเดิม';
+    $('quizNextBtn').textContent = 'เล่นอีกครั้ง';
+    return;
+  }
+  const item = quizBank[miniState.quizIndex];
+  miniState.quizAnswered = false;
+  $('quizProgress').textContent = 'ข้อ ' + (miniState.quizIndex + 1) + ' / ' + quizBank.length;
+  $('quizQuestion').textContent = item.q;
+  $('quizFeedback').textContent = '';
+  $('quizOptions').innerHTML = '';
+  item.options.forEach((option, index) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.textContent = option;
+    button.onclick = () => answerQuiz(button, index);
+    $('quizOptions').appendChild(button);
+  });
+  $('quizNextBtn').textContent = 'ข้ามข้อนี้';
+}
+function answerQuiz(selectedButton, answerIndex) {
+  if (miniState.quizAnswered) return;
+  miniState.quizAnswered = true;
+  const item = quizBank[miniState.quizIndex];
+  const buttons = [...$('quizOptions').querySelectorAll('button')];
+  buttons.forEach((button, index) => {
+    button.disabled = true;
+    if (index === item.answer) button.classList.add('is-correct');
+  });
+  if (answerIndex === item.answer) {
+    miniState.quizScore += 1;
+    $('quizScore').textContent = String(miniState.quizScore);
+    $('quizFeedback').textContent = 'ถูกต้อง! +1 คะแนน';
+  } else {
+    selectedButton.classList.add('is-wrong');
+    $('quizFeedback').textContent = 'ยังไม่ใช่ คำตอบคือ ' + item.options[item.answer];
+  }
+  $('quizNextBtn').textContent = 'ข้อถัดไป';
+}
+document.querySelectorAll('[data-open-game]').forEach((button) => {
+  button.addEventListener('click', () => {
+    if (button.dataset.openGame === 'spyfall') {
+      $('gameHub').classList.add('hidden');
+      $('homeView').classList.remove('hidden');
+    } else {
+      openMiniGame(button.dataset.openGame);
+    }
+  });
+});
+$('hubHomeBtn').addEventListener('click', openGameHub);
+$('miniBackBtn').addEventListener('click', openGameHub);
+$('charadesStartBtn').addEventListener('click', startCharades);
+$('charadesGotBtn').addEventListener('click', () => {
+  if (!miniState.timer) return;
+  miniState.score += 1;
+  $('charadesScore').textContent = String(miniState.score);
+  nextCharadesWord();
+});
+$('charadesSkipBtn').addEventListener('click', () => {
+  if (miniState.timer) nextCharadesWord();
+});
+$('quizNextBtn').addEventListener('click', () => {
+  if (miniState.quizIndex < 0 || miniState.quizIndex >= quizBank.length) {
+    miniState.quizScore = 0;
+    $('quizScore').textContent = '0';
+    miniState.quizIndex = 0;
+    showQuizQuestion();
+  } else {
+    miniState.quizIndex += 1;
+    showQuizQuestion();
+  }
+});

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Spyfall Thailand</title>
+  <title>Game Night Thailand</title>
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
@@ -13,14 +13,25 @@
         <div class="brand-seal" aria-hidden="true"><span>SF</span><small>300</small></div>
         <div class="hero-copy">
           <span class="eyebrow"><span class="eyebrow-mark"></span>MULTIPLAYER PARTY GAME</span>
-          <h1>Spyfall <span>Thailand</span></h1>
-          <p>ภารกิจลับในสถานที่จริงทั่วประเทศไทย</p>
+          <h1>Game Night <span>Thailand</span></h1>
+          <p>รวมเกมปาร์ตี้ เล่นสนุกได้ทุกวง</p>
         </div>
       </div>
       <div class="status-pill is-connecting" id="connectionStatus" role="status" aria-live="polite">กำลังเชื่อมต่อ...</div>
     </header>
 
-    <section id="homeView" class="panel home-panel">
+    <section id="gameHub" class="game-hub" aria-labelledby="gameHubTitle">
+      <div class="hub-heading"><div><span class="eyebrow">CHOOSE YOUR GAME</span><h2 id="gameHubTitle">คืนนี้เล่นเกมไหนดี?</h2><p>เลือกเกมแล้วชวนเพื่อนมาเริ่มสนุกกัน</p></div><span class="hub-count">3 เกมให้เลือก</span></div>
+      <div class="game-grid">
+        <button class="game-card spyfall-card" data-open-game="spyfall"><span class="game-icon">🕵️</span><span class="game-tag">ONLINE MULTIPLAYER</span><strong>Spyfall Thailand</strong><span>จับสายลับจากคำถาม ในสถานที่ลับทั่วไทย</span><span class="game-cta">สร้างห้องหรือเข้าร่วม <b>→</b></span></button>
+        <button class="game-card charades-card" data-open-game="charades"><span class="game-icon">🎭</span><span class="game-tag">PARTY • 1 DEVICE</span><strong>ใบ้คำจับเวลา</strong><span>ใบ้ให้เพื่อนทาย เก็บคะแนนแข่งกันในวง</span><span class="game-cta">เริ่มเล่น <b>→</b></span></button>
+        <button class="game-card quiz-card" data-open-game="quiz"><span class="game-icon">⚡</span><span class="game-tag">QUICK QUIZ</span><strong>ควิซตอบไว</strong><span>ตอบคำถามรอบตัวให้ถูก สะสมคะแนนให้ได้มากที่สุด</span><span class="game-cta">เริ่มเล่น <b>→</b></span></button>
+      </div>
+      <p class="hub-note"><span class="footnote-spark"></span> Spyfall เล่นออนไลน์กับเพื่อนได้ ส่วนเกมอื่นเล่นสลับกันบนอุปกรณ์เดียว</p>
+    </section>
+
+    <section id="homeView" class="panel home-panel hidden">
+      <button id="hubHomeBtn" class="hub-back" type="button">← กลับไปเลือกเกม</button>
       <div class="home-heading">
         <div>
           <span class="eyebrow">CLASSIFIED BRIEFING</span>
@@ -50,6 +61,22 @@
         <span class="footnote-spark" aria-hidden="true"></span>
         <p class="muted">รองรับผู้เล่น 2–15 คน <span>•</span> แชร์รหัสห้องแล้วเริ่มสืบสวน</p>
       </div>
+    </section>
+
+    <section id="miniGameView" class="mini-game-view hidden">
+      <button id="miniBackBtn" class="hub-back" type="button">← กลับไปเลือกเกม</button>
+      <section id="charadesGame" class="panel mini-panel hidden">
+        <div class="mini-heading"><div><span class="eyebrow">PARTY • 1 DEVICE</span><h2>ใบ้คำจับเวลา</h2><p>ให้เพื่อนดูคำ แล้วใบ้โดยห้ามพูดคำนั้น!</p></div><span class="mini-icon">🎭</span></div>
+        <div class="charades-score"><span>คะแนนรอบนี้</span><strong id="charadesScore">0</strong></div>
+        <div class="prompt-card"><span id="charadesStatus">พร้อมเริ่มหรือยัง?</span><strong id="charadesWord">กดเริ่มเกมเพื่อสุ่มคำ</strong><small id="charadesTimer">01:00</small></div>
+        <div class="mini-actions"><button id="charadesStartBtn" class="primary">เริ่มจับเวลา</button><button id="charadesGotBtn" disabled>ทายถูก ✓</button><button id="charadesSkipBtn" disabled>ข้ามคำ ↻</button></div>
+      </section>
+      <section id="quizGame" class="panel mini-panel hidden">
+        <div class="mini-heading"><div><span class="eyebrow">QUICK QUIZ</span><h2>ควิซตอบไว</h2><p>ตอบให้ถูกเพื่อสะสมคะแนน</p></div><span class="mini-icon">⚡</span></div>
+        <div class="quiz-meta"><span id="quizProgress">ข้อ 1 / 10</span><span>คะแนน <strong id="quizScore">0</strong></span></div>
+        <div class="quiz-card"><h3 id="quizQuestion"></h3><div id="quizOptions" class="quiz-options"></div><p id="quizFeedback" class="quiz-feedback" aria-live="polite"></p></div>
+        <button id="quizNextBtn" class="primary quiz-next" type="button">เริ่มควิซ</button>
+      </section>
     </section>
 
     <section id="roomView" class="hidden">
