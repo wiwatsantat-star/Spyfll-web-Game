@@ -90,6 +90,14 @@ function buildSpyCandidates(realLocation, enabledLocations, hintCount) {
 function revealRound(room, reason) {
   if (!room.round || room.status !== 'playing') return;
   room.status = 'revealed';
+  const voteResults = [...room.players.values()].map((player) => ({
+    id: player.id,
+    name: player.name,
+    votes: [...room.votes.values()].filter((targetId) => targetId === player.id).length
+  }));
+  const maxVotes = Math.max(0, ...voteResults.map((player) => player.votes));
+  const leadingIds = voteResults.filter((player) => player.votes === maxVotes).map((player) => player.id);
+  const spyCaught = maxVotes > 0 && leadingIds.some((id) => room.round.spyIds.includes(id));
   io.to(room.code).emit('round:revealed', {
     reason,
     location: room.round.realLocation.name,
@@ -97,7 +105,9 @@ function revealRound(room, reason) {
       id,
       name: room.players.get(id)?.name || 'ไม่ทราบชื่อ'
     })),
-    roles: room.round.roles
+    roles: room.round.roles,
+    voteResults,
+    spyCaught
   });
   emitRoom(room);
 }
@@ -258,10 +268,16 @@ io.on('connection', (socket) => {
     const room = getRoomBySocket(socket.id);
     if (!room || room.status !== 'playing') return;
     if (!room.players.has(targetId) || targetId === socket.id) return;
+    if (room.votes.has(socket.id)) return;
     room.votes.set(socket.id, targetId);
     io.to(room.code).emit('round:voteState', {
-      votedPlayerIds: [...room.votes.keys()]
+      votedPlayerIds: [...room.votes.keys()],
+      voteCount: room.votes.size,
+      totalVotes: room.players.size
     });
+    if (room.votes.size >= room.players.size) {
+      revealRound(room, 'vote');
+    }
   });
 
   socket.on('round:reveal', () => {
@@ -308,6 +324,10 @@ io.on('connection', (socket) => {
     if (!room) return;
 
     room.players.delete(socket.id);
+    room.votes.delete(socket.id);
+    for (const [voterId, targetId] of room.votes.entries()) {
+      if (targetId === socket.id) room.votes.delete(voterId);
+    }
     if (room.players.size === 0) {
       rooms.delete(room.code);
       return;
@@ -317,6 +337,9 @@ io.on('connection', (socket) => {
       room.hostId = [...room.players.keys()][0];
     }
     emitRoom(room);
+    if (room.status === 'playing' && room.votes.size >= room.players.size) {
+      revealRound(room, 'vote');
+    }
   });
 });
 
