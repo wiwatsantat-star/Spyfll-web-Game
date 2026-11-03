@@ -1,4 +1,4 @@
-const socket = io();
+const socket = io({ timeout: 15000, reconnectionAttempts: 6, reconnectionDelay: 1000, reconnectionDelayMax: 5000 });
 
 const state = {
   playerId: null,
@@ -8,7 +8,8 @@ const state = {
   secretVisible: true,
   roomEntryPending: false,
   roomEntryAction: null,
-  roomEntryRequestId: 0
+  roomEntryRequestId: 0,
+  votedPlayerIds: []
 };
 
 const $ = (id) => document.getElementById(id);
@@ -20,6 +21,8 @@ const els = {
   createRoomBtn: $('createRoomBtn'),
   joinRoomBtn: $('joinRoomBtn'),
   connectionStatus: $('connectionStatus'),
+  reconnectBtn: $('reconnectBtn'),
+  voteProgress: $('voteProgress'),
   roomCodeText: $('roomCodeText'),
   copyRoomBtn: $('copyRoomBtn'),
   playerCount: $('playerCount'),
@@ -87,13 +90,13 @@ function enterRoom(eventName, payload) {
   state.roomEntryAction = eventName;
   updateRoomEntryButtons();
 
-  socket.timeout(12000).emit(eventName, payload, (error, result) => {
+  socket.timeout(20000).emit(eventName, payload, (error, result) => {
     if (requestId !== state.roomEntryRequestId) return;
     state.roomEntryPending = false;
     state.roomEntryAction = null;
     updateRoomEntryButtons();
     if (error) {
-      showToast('เซิร์ฟเวอร์ไม่ตอบกลับ กรุณาลองเข้า Session อีกครั้ง');
+      showToast('เซิร์ฟเวอร์ยังไม่ตอบกลับ กรุณาลองเชื่อมต่อหรือเข้าห้องใหม่');
       return;
     }
     if (result?.ok === false) return;
@@ -192,11 +195,23 @@ function renderScoreboard() {
 function renderVotes() {
   if (!state.room) return;
   els.voteList.innerHTML = '';
+  const votedIds = state.votedPlayerIds || [];
+  const hasVoted = votedIds.includes(state.playerId);
+  const voteCount = votedIds.length;
+  const totalPlayers = state.room.players.length;
+  if (state.room.status === 'playing') {
+    els.voteProgress.textContent = hasVoted
+      ? `ส่งคะแนนแล้ว ${voteCount}/${totalPlayers} คน ระบบจะเฉลยเมื่อทุกคนโหวตครบ`
+      : `โหวตผู้ต้องสงสัยเพื่อจบรอบ ${voteCount}/${totalPlayers} คนโหวตแล้ว`;
+  } else {
+    els.voteProgress.textContent = 'โหวตครบทุกคนแล้วระบบจะเฉลยรอบโดยอัตโนมัติ';
+  }
   for (const player of state.room.players.filter((item) => item.id !== state.playerId)) {
     const row = document.createElement('div');
     row.className = 'vote-row';
     const button = document.createElement('button');
-    button.textContent = 'โหวต';
+    button.textContent = hasVoted ? 'โหวตแล้ว' : 'โหวต';
+    button.disabled = hasVoted || state.room.status !== 'playing';
     button.onclick = () => socket.emit('round:vote', { targetId: player.id });
     row.innerHTML = `<span>${player.name}</span>`;
     row.appendChild(button);
@@ -239,6 +254,11 @@ els.saveSettingsBtn.onclick = () => {
 els.startRoundBtn.onclick = () => socket.emit('round:start');
 els.revealBtn.onclick = () => socket.emit('round:reveal');
 els.newRoundBtn.onclick = () => socket.emit('round:new');
+els.reconnectBtn.onclick = () => {
+  els.reconnectBtn.classList.add('hidden');
+  setConnectionStatus('กำลังเชื่อมต่อ...', 'is-connecting');
+  socket.connect();
+};
 els.resetScoresBtn.onclick = () => {
   if (confirm('ต้องการรีเซ็ตคะแนนผู้เล่นทุกคนหรือไม่?')) {
     socket.emit('score:reset');
@@ -258,6 +278,7 @@ function setConnectionStatus(message, statusClass) {
 
 socket.on('connect', () => {
   setConnectionStatus('ออนไลน์', 'is-online');
+  els.reconnectBtn.classList.add('hidden');
   updateRoomEntryButtons();
   socket.emit('locations:list');
 });
@@ -265,8 +286,17 @@ socket.on('connect_error', () => {
   setConnectionStatus('กำลังเชื่อมต่อ...', 'is-connecting');
   updateRoomEntryButtons();
 });
-socket.on('disconnect', () => {
+socket.io.on('reconnect_attempt', () => {
+  setConnectionStatus('กำลังเชื่อมต่อ...', 'is-connecting');
+  els.reconnectBtn.classList.add('hidden');
+});
+socket.io.on('reconnect_failed', () => {
   setConnectionStatus('ออฟไลน์', 'is-offline');
+  els.reconnectBtn.classList.remove('hidden');
+  updateRoomEntryButtons();
+});
+socket.on('disconnect', () => {
+  setConnectionStatus('กำลังเชื่อมต่อ...', 'is-connecting');
   const wasEnteringRoom = state.roomEntryPending;
   state.roomEntryRequestId += 1;
   state.roomEntryPending = false;
@@ -292,6 +322,7 @@ socket.on('room:state', (room) => {
   renderRoom();
 });
 socket.on('round:started', ({ endsAt }) => {
+  state.votedPlayerIds = [];
   els.gamePanel.classList.remove('hidden');
   els.revealPanel.classList.add('hidden');
   startTimer(endsAt);
@@ -315,15 +346,36 @@ socket.on('round:secret', (payload) => {
     els.secretContent.innerHTML = `<h2>${payload.role}</h2>`;
   }
 });
+socket.on('round:voteState', ({ votedPlayerIds = [] } = {}) => {
+  state.votedPlayerIds = votedPlayerIds;
+  renderVotes();
+});
 socket.on('round:revealed', (payload) => {
   clearInterval(state.timerHandle);
   els.revealPanel.classList.remove('hidden');
-  els.revealContent.innerHTML = `
-    <p><strong>สถานที่จริง:</strong> ${payload.location}</p>
-    <p><strong>Spy:</strong> ${payload.spies.map((item) => item.name).join(', ')}</p>
-  `;
+  els.revealContent.replaceChildren();
+  const locationLine = document.createElement('p');
+  locationLine.innerHTML = '<strong>สถานที่จริง:</strong> ';
+  locationLine.append(document.createTextNode(payload.location));
+  const spiesLine = document.createElement('p');
+  spiesLine.innerHTML = '<strong>Spy:</strong> ';
+  spiesLine.append(document.createTextNode(payload.spies.map((item) => item.name).join(', ')));
+  els.revealContent.append(locationLine, spiesLine);
+  if (payload.reason === 'vote') {
+    const outcome = document.createElement('p');
+    outcome.className = 'vote-outcome';
+    outcome.textContent = payload.spyCaught ? 'ผลโหวต: จับ Spy ได้!' : 'ผลโหวต: Spy ยังไม่ถูกจับได้';
+    els.revealContent.appendChild(outcome);
+  }
+  for (const result of payload.voteResults || []) {
+    if (!result.votes) continue;
+    const line = document.createElement('p');
+    line.textContent = result.name + ': ' + result.votes + ' โหวต';
+    els.revealContent.appendChild(line);
+  }
 });
 socket.on('round:cleared', () => {
+  state.votedPlayerIds = [];
   clearInterval(state.timerHandle);
   els.gamePanel.classList.add('hidden');
   els.revealPanel.classList.add('hidden');

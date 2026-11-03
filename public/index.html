@@ -18,6 +18,7 @@
         </div>
       </div>
       <div class="status-pill is-connecting" id="connectionStatus" role="status" aria-live="polite">กำลังเชื่อมต่อ...</div>
+      <button id="reconnectBtn" class="connection-retry hidden" type="button">เชื่อมต่อใหม่</button>
     </header>
 
     <section id="gameHub" class="game-hub" aria-labelledby="gameHubTitle">
@@ -220,6 +221,7 @@
         </div>
 
         <h3>โหวตผู้ต้องสงสัย</h3>
+        <p id="voteProgress" class="vote-progress" aria-live="polite">โหวตครบทุกคนแล้วระบบจะเฉลยรอบโดยอัตโนมัติ</p>
         <div id="voteList" class="vote-list"></div>
       </section>
 
