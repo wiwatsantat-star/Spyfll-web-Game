@@ -869,3 +869,15 @@ h3 {
 .insider-tally-row { display:flex; justify-content:space-between; gap:12px; padding:12px 14px; border:1px solid var(--line); border-radius:13px; background:rgba(8,16,25,.4); }
 .insider-tally-row strong { color:var(--gold-bright); white-space:nowrap; }
 #insiderOutcome { margin:8px 0; color:var(--gold-bright); font-size:1.5rem; }
+
+
+/* Round voting and connection recovery */
+.connection-retry { min-height:40px; padding:0 13px; border-color:rgba(240,105,99,.4); color:#ffe9e3; background:rgba(108,43,48,.72); white-space:nowrap; }
+.connection-retry:hover:not(:disabled) { background:rgba(135,51,57,.9); }
+.vote-progress { margin:-4px 0 12px; color:var(--muted); font-size:.84rem; }
+.vote-outcome { color:var(--gold-bright); font-weight:850; }
+@media (max-width:620px) {
+  .hero { flex-wrap:wrap; }
+  .brand-lockup { max-width:100%; }
+  .hero .status-pill { margin-left:auto; }
+}
