@@ -336,6 +336,11 @@ io.on('connection', (socket) => {
     if (room.hostId === socket.id) {
       room.hostId = [...room.players.keys()][0];
     }
+    io.to(room.code).emit('round:voteState', {
+      votedPlayerIds: [...room.votes.keys()],
+      voteCount: room.votes.size,
+      totalVotes: room.players.size
+    });
     emitRoom(room);
     if (room.status === 'playing' && room.votes.size >= room.players.size) {
       revealRound(room, 'vote');
