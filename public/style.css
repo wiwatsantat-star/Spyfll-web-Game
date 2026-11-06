@@ -908,3 +908,8 @@ input,select{border-color:#d6e1ec;color:var(--text);background:#fff}input:focus,
 .insider-room-code-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:10px 0;color:var(--muted)}
 .insider-room-code-row button{color:#8a5a12;font-weight:750}.insider-online-back{margin-top:18px}
 @media(min-width:600px){.insider-mode-actions{grid-template-columns:1fr 1fr}}
+
+/* Keep all game hub cards light against the refreshed palette. */
+.game-card{background:linear-gradient(145deg,#fff,#f7fbff);color:#19283c}
+.game-card .game-cta{color:#955b0c}
+.game-card .game-tag{color:#6b7c92}
