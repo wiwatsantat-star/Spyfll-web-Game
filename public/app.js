@@ -744,3 +744,157 @@ $('insiderBeginVoteBtn').addEventListener('click', beginInsiderVoting);
 $('insiderSecretToggle').addEventListener('click', toggleInsiderSecret);
 $('insiderVoteNextBtn').addEventListener('click', nextInsiderVote);
 $('insiderReplayBtn').addEventListener('click', resetInsider);
+
+
+/* Online Insider multiplayer flow */
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const online = { code:null, playerId:null, room:null, role:null, word:null, votedIds:[], secretVisible:false, clock:null };
+  const panels = ['insiderOnlineSetup','insiderOnlineLobby','insiderOnlinePlay','insiderOnlineResults'];
+  const showPanel = (id) => panels.forEach((panelId) => $(panelId).classList.toggle('hidden', panelId !== id));
+  const isHost = () => online.room?.hostId === online.playerId;
+  function setStatus(message) { $('insiderOnlineStatus').textContent = message; }
+  function showOnline() {
+    $('insiderSetup').classList.add('hidden');
+    $('insiderOnlineView').classList.remove('hidden');
+    showPanel(online.room ? (online.room.status === 'lobby' ? 'insiderOnlineLobby' : online.room.status === 'results' ? 'insiderOnlineResults' : 'insiderOnlinePlay') : 'insiderOnlineSetup');
+    setStatus(socket.connected ? 'รองรับผู้เล่น 4–12 คน เมื่อทุกคนเข้าห้องแล้ว Host เริ่มเกมได้' : 'กำลังเชื่อมต่อเซิร์ฟเวอร์...');
+  }
+  function leaveAndReset() {
+    if (online.code) socket.emit('insider:room:leave');
+    clearInterval(online.clock);
+    online.clock = null;
+    online.code = online.playerId = null;
+    online.room = online.role = online.word = null;
+    online.votedIds = [];
+    online.secretVisible = false;
+    $('insiderOnlineSecret').textContent = '••••••••';
+    $('insiderOnlineSecretBox').classList.add('hidden');
+    $('insiderOnlineVoteChoices').replaceChildren();
+    $('insiderOnlineView').classList.add('hidden');
+    $('insiderSetup').classList.remove('hidden');
+  }
+  function send(event, payload = {}) {
+    if (!socket.connected) return setStatus('ขาดการเชื่อมต่อ กรุณารอสักครู่แล้วลองใหม่');
+    socket.timeout(15000).emit(event, payload, (error, result) => { if (error) setStatus('เซิร์ฟเวอร์ยังไม่ตอบกลับ ลองใหม่อีกครั้ง'); else if (result?.ok === false) setStatus(result.message || 'ดำเนินการไม่สำเร็จ'); });
+  }
+  function renderPlayers() {
+    const list = $('insiderOnlinePlayers');
+    list.replaceChildren();
+    const players = online.room?.players || [];
+    players.forEach((player) => {
+      const row = document.createElement('div'); row.className = 'insider-online-player';
+      const name = document.createElement('strong'); name.textContent = player.name;
+      const badge = document.createElement('small'); badge.textContent = player.isHost ? 'HOST' : 'พร้อมเล่น';
+      row.append(name,badge); list.appendChild(row);
+    });
+    $('insiderOnlinePlayerCount').textContent = players.length + ' / 12 คน';
+    $('insiderOnlineLobbyHint').textContent = players.length < 4 ? 'ต้องมีผู้เล่นอีก ' + (4 - players.length) + ' คนก่อนเริ่มเกม' : 'ทุกคนเข้าร่วมแล้ว Host เริ่มเกมได้เลย';
+    $('insiderOnlineStartBtn').classList.toggle('hidden',!isHost());
+    $('insiderOnlineStartBtn').disabled = players.length < 4;
+  }
+  function renderSecret() {
+    const hasWord = (online.role === 'master' || online.role === 'insider') && Boolean(online.word);
+    $('insiderOnlineSecretBox').classList.toggle('hidden',!hasWord);
+    $('insiderOnlineRole').textContent = online.role === 'master'
+      ? 'คุณคือ Master • ดูแลเกมและช่วยนำวงสนทนา'
+      : online.role === 'insider'
+        ? 'คุณคือ Insider • ช่วยวงเดาคำและพยายามไม่ให้ถูกจับได้'
+        : 'คุณเป็นผู้เล่นทั่วไป • ช่วยกันเดาคำและจับ Insider';
+    $('insiderOnlineSecret').textContent = online.secretVisible && hasWord ? online.word : '••••••••';
+    $('insiderOnlineSecretToggle').textContent = online.secretVisible ? 'ซ่อนคำลับ' : 'แสดงคำลับ';
+  }
+  function renderVoteChoices() {
+    const list = $('insiderOnlineVoteChoices'); list.replaceChildren();
+    if (online.room?.status !== 'voting') return;
+    const hasVoted = online.votedIds.includes(online.playerId), players = online.room.players || [];
+    $('insiderOnlineVoteProgress').textContent = hasVoted
+      ? 'ส่งคะแนนแล้ว ' + online.votedIds.length + '/' + players.length + ' คน • รอผลเมื่อทุกคนโหวตครบ'
+      : 'เลือกผู้เล่นที่คิดว่าเป็น Insider • ' + online.votedIds.length + '/' + players.length + ' คนโหวตแล้ว';
+    players.filter((player) => player.id !== online.playerId).forEach((player) => {
+      const button=document.createElement('button'); button.type='button'; button.textContent=player.name; button.disabled=hasVoted;
+      button.addEventListener('click',()=>socket.emit('insider:round:vote',{targetId:player.id})); list.appendChild(button);
+    });
+  }
+  function renderRoom() {
+    if (!online.room) return;
+    const room=online.room;
+    $('insiderOnlineRoomCode').textContent=room.code;
+    renderPlayers();
+    if (room.status==='lobby') {
+      clearInterval(online.clock); online.clock=null; showPanel('insiderOnlineLobby');
+      $('insiderOnlineRole').textContent=''; $('insiderOnlineSecretBox').classList.add('hidden');
+    } else if (room.status==='discussion'||room.status==='voting') {
+      showPanel('insiderOnlinePlay');
+      $('insiderOnlinePhase').textContent=room.status==='discussion'?'ช่วงพูดคุย':'ลงคะแนน';
+      $('insiderOnlineBeginVoteBtn').classList.toggle('hidden',!isHost()||room.status!=='discussion');
+      $('insiderOnlineVoteChoices').classList.toggle('hidden',room.status!=='voting');
+      $('insiderOnlineVoteProgress').classList.toggle('hidden',room.status!=='voting');
+      renderSecret();
+      if(room.status==='discussion'&&room.endsAt){
+        clearInterval(online.clock);
+        const tick=()=>{const left=Math.max(0,Math.ceil((room.endsAt-Date.now())/1000));$('insiderOnlineTimer').textContent=String(Math.floor(left/60)).padStart(2,'0')+':'+String(left%60).padStart(2,'0');};
+        tick(); online.clock=setInterval(tick,1000);
+      } else {
+        clearInterval(online.clock); online.clock=null;
+        $('insiderOnlineTimer').textContent=online.votedIds.length+' / '+room.players.length+' โหวต';
+      }
+      renderVoteChoices();
+    } else if(room.status==='results') {
+      clearInterval(online.clock); online.clock=null; showPanel('insiderOnlineResults');
+      $('insiderOnlineNewRoundBtn').classList.toggle('hidden',!isHost());
+      $('insiderOnlineWait').classList.toggle('hidden',isHost());
+    }
+  }
+  function renderResults(result) {
+    $('insiderOnlineOutcome').textContent=result.insiderCaught?'จับ Insider ได้!':'Insider หลบหนีไปได้';
+    $('insiderOnlineSummary').textContent='Insider คือ '+result.insiderName+' • Master คือ '+result.masterName+' • คำลับคือ “'+result.word+'”';
+    const list=$('insiderOnlineTally'); list.replaceChildren();
+    result.tally.forEach((player)=>{
+      const row=document.createElement('div');row.className='insider-tally-row';
+      const name=document.createElement('span');name.textContent=player.name+(player.role==='insider'?' • INSIDER':player.role==='master'?' • MASTER':'');
+      const count=document.createElement('strong');count.textContent=player.votes+' โหวต';row.append(name,count);list.appendChild(row);
+    });
+  }
+
+  $('insiderOnlineOpenBtn').addEventListener('click',showOnline);
+  $('insiderOnlineBackBtn').addEventListener('click',leaveAndReset);
+  $('miniBackBtn').addEventListener('click',leaveAndReset);
+  $('insiderOnlineCreateBtn').addEventListener('click',()=>send('insider:room:create',{name:$('insiderOnlineName').value.trim()||'ผู้เล่น'}));
+  $('insiderOnlineJoinBtn').addEventListener('click',()=>{
+    const code=$('insiderOnlineCode').value.trim().toUpperCase();
+    if(!code)return setStatus('กรอกรหัสห้องก่อน');
+    send('insider:room:join',{name:$('insiderOnlineName').value.trim()||'ผู้เล่น',code});
+  });
+  $('insiderOnlineCopyBtn').addEventListener('click',async()=>{
+    try{await navigator.clipboard.writeText(online.code||'');setStatus('คัดลอกรหัสห้องแล้ว ส่งรหัสนี้ให้เพื่อนได้เลย');}
+    catch{$('insiderOnlineCode').value=online.code||'';setStatus('คัดลอกรหัสไม่สำเร็จ แตะค้างที่รหัสเพื่อคัดลอก');}
+  });
+  $('insiderOnlineStartBtn').addEventListener('click',()=>socket.emit('insider:round:start'));
+  $('insiderOnlineBeginVoteBtn').addEventListener('click',()=>socket.emit('insider:round:voteStart'));
+  $('insiderOnlineNewRoundBtn').addEventListener('click',()=>socket.emit('insider:round:new'));
+  $('insiderOnlineSecretToggle').addEventListener('click',()=>{online.secretVisible=!online.secretVisible;renderSecret();});
+
+  socket.on('insider:room:joined',({code,playerId})=>{
+    online.code=code;online.playerId=playerId;$('insiderOnlineCode').value=code;showPanel('insiderOnlineLobby');
+    setStatus('เข้าห้องแล้ว แชร์รหัสให้เพื่อนเข้าร่วม');
+  });
+  socket.on('insider:room:state',(room)=>{
+    if(online.code&&room.code!==online.code)return;
+    online.code=room.code;online.room=room;
+    if(room.status==='lobby'){online.role=null;online.word=null;online.secretVisible=false;}
+    renderRoom();
+  });
+  socket.on('insider:secret',({role,word})=>{online.role=role;online.word=word;online.secretVisible=false;renderSecret();});
+  socket.on('insider:vote:state',({votedPlayerIds=[]})=>{online.votedIds=votedPlayerIds;if(online.room)renderRoom();});
+  socket.on('insider:round:results',renderResults);
+  socket.on('insider:round:reset',()=>{online.role=null;online.word=null;online.votedIds=[];online.secretVisible=false;});
+  socket.on('insider:room:error',setStatus);
+  socket.on('connect',()=>{if(!$('insiderOnlineView').classList.contains('hidden'))setStatus(online.code?'เชื่อมต่อแล้ว แต่ให้ออกจากห้องและเข้าร่วมใหม่':'เชื่อมต่อแล้ว สร้างห้องหรือเข้าร่วมด้วยรหัสได้เลย');});
+  socket.on('disconnect',()=>{
+    if($('insiderOnlineView').classList.contains('hidden'))return;
+    clearInterval(online.clock);online.clock=null;online.code=online.playerId=null;online.room=null;
+    setStatus('การเชื่อมต่อหลุด ห้องเดิมสิ้นสุดแล้ว เชื่อมต่อใหม่และสร้างหรือเข้าร่วมห้องอีกครั้ง');
+    showPanel('insiderOnlineSetup');
+  });
+})();

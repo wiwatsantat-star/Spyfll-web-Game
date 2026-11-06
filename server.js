@@ -14,6 +14,8 @@ const locations = JSON.parse(
 );
 const locationMap = new Map(locations.map((location) => [location.id, location]));
 const rooms = new Map();
+const insiderRooms = new Map();
+const insiderWords = ['ตลาดน้ำ','รถไฟฟ้า','โรงพยาบาล','ร้านกาแฟ','สนามบิน','สวนสัตว์','ห้องสมุด','สถานีตำรวจ','โรงภาพยนตร์','ร้านสะดวกซื้อ','ชายหาด','พิพิธภัณฑ์','สถานีรถไฟ','สวนสนุก','ร้านอาหาร','โรงเรียน','ตลาดกลางคืน','คอนเสิร์ต','สนามฟุตบอล','วัดไทย','ปั๊มน้ำมัน','ร้านตัดผม','ฟาร์ม','โรงแรม','ร้านขายยา','ท่าเรือ','งานวัด','ค่ายลูกเสือ','ภูเขา','พิพิธภัณฑ์สัตว์น้ำ','ร้านซักรีด','สำนักงาน','คาเฟ่แมว','ร้านหนังสือ','สถานีขนส่ง','ตลาดสด','ร้านขนม','ลานสเกต','ศูนย์การค้า','คลินิก'];
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.get('/health', (_req, res) => res.json({ ok: true, locations: locations.length }));
@@ -23,7 +25,7 @@ function createCode() {
   let code = '';
   do {
     code = Array.from({ length: 5 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
-  } while (rooms.has(code));
+  } while (rooms.has(code) || insiderRooms.has(code));
   return code;
 }
 
@@ -115,12 +117,46 @@ function revealRound(room, reason) {
 setInterval(() => {
   const now = Date.now();
   for (const room of rooms.values()) {
-    if (room.status === 'playing' && room.round?.endsAt <= now) {
-      revealRound(room, 'timeup');
-    }
+    if (room.status === 'playing' && room.round?.endsAt <= now) revealRound(room, 'timeup');
+  }
+  for (const room of insiderRooms.values()) {
+    if (room.status === 'discussion' && room.endsAt <= now) startInsiderVoting(room);
   }
 }, 1000);
 
+function getInsiderRoom(socket) {
+  const code=socket.data.insiderRoomCode; return code?insiderRooms.get(code):null;
+}
+function serializeInsiderRoom(room) {
+  return {code:room.code,hostId:room.hostId,status:room.status,endsAt:room.endsAt,
+    players:[...room.players.values()].map(p=>({id:p.id,name:p.name,isHost:p.id===room.hostId})),
+    votedPlayerIds:[...room.votes.keys()]};
+}
+function emitInsiderRoom(room){io.to('insider-'+room.code).emit('insider:room:state',serializeInsiderRoom(room));}
+function finishInsiderRound(room){
+  if(room.status!=='voting')return;
+  room.status='results';room.endsAt=null;
+  const tally=[...room.players.values()].map(p=>({id:p.id,name:p.name,votes:[...room.votes.values()].filter(id=>id===p.id).length,role:p.role}));
+  const maxVotes=Math.max(0,...tally.map(p=>p.votes));
+  const insiderCaught=tally.some(p=>p.role==='insider'&&p.votes===maxVotes&&maxVotes>0);
+  io.to('insider-'+room.code).emit('insider:round:results',{word:room.word,insiderName:room.players.get(room.insiderId)?.name||'ไม่ทราบชื่อ',masterName:room.players.get(room.masterId)?.name||'ไม่ทราบชื่อ',insiderCaught,tally});
+  emitInsiderRoom(room);
+}
+function startInsiderVoting(room){
+  if(!room||room.status!=='discussion')return;
+  room.status='voting';room.endsAt=null;room.votes.clear();
+  io.to('insider-'+room.code).emit('insider:vote:state',{votedPlayerIds:[]});emitInsiderRoom(room);
+}
+function leaveInsiderRoom(socket){
+  const room=getInsiderRoom(socket);if(!room)return;
+  room.players.delete(socket.id);room.votes.delete(socket.id);
+  for(const [voterId,targetId] of room.votes.entries())if(targetId===socket.id)room.votes.delete(voterId);
+  socket.leave('insider-'+room.code);delete socket.data.insiderRoomCode;
+  if(!room.players.size){insiderRooms.delete(room.code);return;}
+  if(room.hostId===socket.id)room.hostId=room.players.keys().next().value;
+  if(room.status==='voting'&&room.votes.size>=room.players.size)finishInsiderRound(room);else emitInsiderRoom(room);
+}
+function handleInsiderDisconnect(socket){leaveInsiderRoom(socket);}
 io.on('connection', (socket) => {
   socket.on('locations:list', () => {
     socket.emit('locations:data', locations.map(({ roles, ...location }) => location));
@@ -319,32 +355,66 @@ io.on('connection', (socket) => {
     emitRoom(room);
   });
 
-  socket.on('disconnect', () => {
-    const room = getRoomBySocket(socket.id);
-    if (!room) return;
-
-    room.players.delete(socket.id);
-    room.votes.delete(socket.id);
-    for (const [voterId, targetId] of room.votes.entries()) {
-      if (targetId === socket.id) room.votes.delete(voterId);
+  socket.on('insider:room:create',({name}={},ack)=>{
+    if(socket.data.insiderRoomCode)leaveInsiderRoom(socket);
+    const code=createCode(),room={code,hostId:socket.id,status:'lobby',players:new Map(),votes:new Map(),endsAt:null,word:null,masterId:null,insiderId:null};
+    room.players.set(socket.id,{id:socket.id,name:sanitizeName(name),role:null});insiderRooms.set(code,room);
+    socket.join('insider-'+code);socket.data.insiderRoomCode=code;
+    socket.emit('insider:room:joined',{code,playerId:socket.id});emitInsiderRoom(room);
+    if(typeof ack==='function')ack({ok:true,code});
+  });
+  socket.on('insider:room:join',({name,code}={},ack)=>{
+    if(socket.data.insiderRoomCode)leaveInsiderRoom(socket);
+    const room=insiderRooms.get(String(code||'').trim().toUpperCase());
+    const fail=message=>{if(typeof ack==='function')ack({ok:false,message});};
+    if(!room)return fail('ไม่พบห้องนี้ กรุณาตรวจรหัสอีกครั้ง');
+    if(room.status!=='lobby')return fail('รอบนี้เริ่มไปแล้ว ให้ Host เริ่มรอบใหม่ก่อน');
+    if(room.players.size>=12)return fail('ห้องเต็มแล้ว รองรับผู้เล่นได้สูงสุด 12 คน');
+    room.players.set(socket.id,{id:socket.id,name:sanitizeName(name),role:null});socket.join('insider-'+room.code);socket.data.insiderRoomCode=room.code;
+    socket.emit('insider:room:joined',{code:room.code,playerId:socket.id});emitInsiderRoom(room);
+    if(typeof ack==='function')ack({ok:true,code:room.code});
+  });
+  socket.on('insider:room:leave',()=>leaveInsiderRoom(socket));
+  socket.on('insider:round:start',()=>{
+    const room=getInsiderRoom(socket);if(!room||room.hostId!==socket.id||room.status!=='lobby')return;
+    if(room.players.size<4){socket.emit('insider:room:error','ต้องมีผู้เล่นอย่างน้อย 4 คน');return;}
+    const players=[...room.players.values()],mi=Math.floor(Math.random()*players.length);
+    let ii=Math.floor(Math.random()*players.length);while(ii===mi)ii=Math.floor(Math.random()*players.length);
+    room.masterId=players[mi].id;room.insiderId=players[ii].id;room.word=insiderWords[Math.floor(Math.random()*insiderWords.length)];
+    room.votes.clear();room.status='discussion';room.endsAt=Date.now()+300000;
+    for(const p of players){
+      p.role=p.id===room.masterId?'master':p.id===room.insiderId?'insider':'player';
+      io.to(p.id).emit('insider:secret',{role:p.role,word:p.role==='master'||p.role==='insider'?room.word:null});
     }
-    if (room.players.size === 0) {
-      rooms.delete(room.code);
-      return;
+    io.to('insider-'+room.code).emit('insider:vote:state',{votedPlayerIds:[]});emitInsiderRoom(room);
+  });
+  socket.on('insider:round:voteStart',()=>{
+    const room=getInsiderRoom(socket);if(room?.hostId===socket.id)startInsiderVoting(room);
+  });
+  socket.on('insider:round:vote',({targetId}={})=>{
+    const room=getInsiderRoom(socket);if(!room||room.status!=='voting'||!room.players.has(targetId)||targetId===socket.id||room.votes.has(socket.id))return;
+    room.votes.set(socket.id,targetId);io.to('insider-'+room.code).emit('insider:vote:state',{votedPlayerIds:[...room.votes.keys()]});
+    if(room.votes.size>=room.players.size)finishInsiderRound(room);
+  });
+  socket.on('insider:round:new',()=>{
+    const room=getInsiderRoom(socket);if(!room||room.hostId!==socket.id||room.status!=='results')return;
+    room.status='lobby';room.endsAt=null;room.word=null;room.masterId=null;room.insiderId=null;room.votes.clear();
+    for(const p of room.players.values())p.role=null;
+    io.to('insider-'+room.code).emit('insider:round:reset');emitInsiderRoom(room);
+  });
+  socket.on('disconnect',()=>{
+    const room=getRoomBySocket(socket.id);
+    if(room){
+      room.players.delete(socket.id);room.votes.delete(socket.id);
+      for(const [voterId,targetId] of room.votes.entries())if(targetId===socket.id)room.votes.delete(voterId);
+      if(!room.players.size)rooms.delete(room.code);
+      else{
+        if(room.hostId===socket.id)room.hostId=[...room.players.keys()][0];
+        io.to(room.code).emit('round:voteState',{votedPlayerIds:[...room.votes.keys()],voteCount:room.votes.size,totalVotes:room.players.size});emitRoom(room);
+        if(room.status==='playing'&&room.votes.size>=room.players.size)revealRound(room,'vote');
+      }
     }
-
-    if (room.hostId === socket.id) {
-      room.hostId = [...room.players.keys()][0];
-    }
-    io.to(room.code).emit('round:voteState', {
-      votedPlayerIds: [...room.votes.keys()],
-      voteCount: room.votes.size,
-      totalVotes: room.players.size
-    });
-    emitRoom(room);
-    if (room.status === 'playing' && room.votes.size >= room.players.size) {
-      revealRound(room, 'vote');
-    }
+    handleInsiderDisconnect(socket);
   });
 });
 
