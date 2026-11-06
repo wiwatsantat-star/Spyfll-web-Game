@@ -204,6 +204,12 @@ io.on('connection', (socket) => {
       if (typeof acknowledge === 'function') acknowledge({ ok: false, message });
       return;
     }
+    if (room.status !== 'lobby') {
+      const message = 'รอบนี้เริ่มไปแล้ว ไม่สามารถเข้าห้องกลางรอบได้';
+      socket.emit('app:error', message);
+      if (typeof acknowledge === 'function') acknowledge({ ok: false, message });
+      return;
+    }
     if (room.players.size >= 15) {
       const message = 'ห้องเต็มแล้ว';
       socket.emit('app:error', message);
