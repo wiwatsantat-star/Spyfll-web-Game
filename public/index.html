@@ -86,8 +86,52 @@
             <label class="insider-player-setting">จำนวนผู้เล่น (4–12 คน)
               <input id="insiderPlayerCount" type="number" min="4" max="12" value="6">
             </label>
-            <div class="insider-rules"><strong>วิธีเล่น</strong><p>ส่งอุปกรณ์ให้ผู้เล่นทีละคนเพื่อดูบทบาทลับ ทุกคนคุยกันเพื่อเดาคำ ส่วน Insider และ Master จะเห็นคำลับ จากนั้นโหวตว่าใครคือ Insider</p></div>
-            <button id="insiderStartBtn" class="primary insider-wide">แจกบทบาท</button>
+            <div class="insider-rules"><strong>วิธีเล่น</strong><p>ผู้เล่นทุกคนจะได้รับบทบาทลับบนอุปกรณ์ของตัวเอง Master และ Insider จะเห็นคำลับ คุยกันเพื่อเดาคำ แล้วโหวตจากมือถือหรือคอมพิวเตอร์ของแต่ละคน</p></div>
+            <div class="insider-mode-actions">
+              <button id="insiderOnlineOpenBtn" class="primary insider-wide" type="button">เล่นออนไลน์กับเพื่อน</button>
+              <button id="insiderStartBtn" class="insider-wide" type="button">เล่นบนอุปกรณ์เดียว</button>
+            </div>
+          </div>
+          <div id="insiderOnlineView" class="hidden">
+            <div id="insiderOnlineSetup">
+              <p class="insider-prompt">สร้างห้องแล้วแชร์รหัส หรือใส่รหัสห้องของเพื่อนเพื่อเข้าร่วม</p>
+              <label class="insider-player-setting">ชื่อผู้เล่น
+                <input id="insiderOnlineName" maxlength="20" autocomplete="nickname" placeholder="กรอกชื่อของคุณ">
+              </label>
+              <div class="insider-mode-actions">
+                <button id="insiderOnlineCreateBtn" class="primary insider-wide" type="button">สร้างห้อง Insider</button>
+                <label class="insider-player-setting">รหัสห้อง
+                  <input id="insiderOnlineCode" maxlength="5" inputmode="text" autocapitalize="characters" autocomplete="off" placeholder="เช่น AB123">
+                </label>
+                <button id="insiderOnlineJoinBtn" class="insider-wide" type="button">เข้าร่วมห้อง</button>
+              </div>
+              <p id="insiderOnlineStatus" class="muted" role="status" aria-live="polite">รองรับ 4–12 คน เมื่อทุกคนเข้าห้องแล้ว Host เริ่มเกมได้</p>
+            </div>
+            <div id="insiderOnlineLobby" class="hidden">
+              <div class="insider-phase-label">ห้อง Insider <span><span id="insiderOnlineRoomCode"></span></span></div>
+              <div class="insider-room-code-row"><button id="insiderOnlineCopyBtn" type="button">คัดลอกรหัสเชิญ</button><span id="insiderOnlinePlayerCount"></span></div>
+              <div id="insiderOnlinePlayers" class="insider-online-players"></div>
+              <p id="insiderOnlineLobbyHint" class="muted"></p>
+              <button id="insiderOnlineStartBtn" class="primary insider-wide hidden" type="button">เริ่มรอบ</button>
+            </div>
+            <div id="insiderOnlinePlay" class="hidden">
+              <div class="insider-phase-label"><span id="insiderOnlinePhase">ช่วงพูดคุย</span><span id="insiderOnlineTimer">05:00</span></div>
+              <p id="insiderOnlineRole" class="insider-prompt"></p>
+              <div id="insiderOnlineSecretBox" class="insider-secret-box hidden">
+                <span>คำลับของรอบนี้</span><strong id="insiderOnlineSecret">••••••••</strong>
+                <button id="insiderOnlineSecretToggle" type="button">แสดงคำลับ</button>
+              </div>
+              <button id="insiderOnlineBeginVoteBtn" class="insider-wide hidden" type="button">จบช่วงคุยและเริ่มโหวต</button>
+              <p id="insiderOnlineVoteProgress" class="muted"></p>
+              <div id="insiderOnlineVoteChoices" class="insider-vote-list"></div>
+            </div>
+            <div id="insiderOnlineResults" class="hidden">
+              <div class="insider-phase-label">ผลการโหวต</div><h3 id="insiderOnlineOutcome"></h3>
+              <p id="insiderOnlineSummary" class="insider-prompt"></p><div id="insiderOnlineTally" class="insider-tally"></div>
+              <button id="insiderOnlineNewRoundBtn" class="primary insider-wide hidden" type="button">เริ่มรอบใหม่</button>
+              <p id="insiderOnlineWait" class="muted hidden">รอ Host เริ่มรอบใหม่</p>
+            </div>
+            <button id="insiderOnlineBackBtn" class="hub-back insider-online-back" type="button">← กลับไปเลือกวิธีเล่น</button>
           </div>
           <div id="insiderDeal" class="hidden">
             <div class="insider-phase-label">แจกการ์ดลับ <span id="insiderDealCount"></span></div>
